@@ -9,4 +9,7 @@ global.expect = chai.expect;
 
 require('../www/lib/pockets/pockets');
 
+pockets.init();
+
 global.common = exports;
+

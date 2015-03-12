@@ -1,9 +1,10 @@
 var config = module.exports;
 
-config.get = function (key) {
-  return localStorage.getItem(key);
+config.get = function (
+  key) {
+  return pockets.db.get(key);
 };
 
 config.set = function (key, value) {
-  return localStorage.setItem(key, value);
+  return pockets.db.set(key, value);
 };
