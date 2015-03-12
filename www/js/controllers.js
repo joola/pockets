@@ -65,12 +65,10 @@ angular.module('starter.controllers', [])
     $scope.choosePersona = function (persona) {
       if (persona === 'student') {
 
-        engine.pockets.create(student).then(function (err) {
-          if (err)
-            throw err;
+        engine.pockets.create(student).then(function () {
           $state.go('tab.pockets');
         }).error(function (err) {
-          if (err) throw err;
+          if (err) console.log(err);
         });
 
         $state.go('tab.pockets');
