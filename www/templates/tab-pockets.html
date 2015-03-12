@@ -1,19 +1,22 @@
 <ion-view view-title="My pockets">
   <ion-content>
     <div class="pocket-content">
-      <div ng-repeat="(key, value) in pockets.pockets" ,
-           style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;" ng-click="selectPocket('{{value.name}}', '{{value.pockets}}')">
+      <div ng-repeat="(key, value) in pockets.pockets"
+           style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;"
+           ng-click="selectPocket('{{value.name}}', '{{value.pockets}}')">
         <div class="pocket-title" style="background-color:{{value.color}}">
           {{value.name}}
         </div>
         <div ng-if="value.pockets" style="height:100%">
-          <div class="children" ng-repeat="(subkey, subpocket) in value.pockets" style="height:100%;width:{{subpocket.hard_ratio*100}}%;border-right:1px solid #000"></div>
+          <div class="children" ng-repeat="(subkey, subpocket) in value.pockets"
+               style="height:100%;width:{{subpocket.hard_ratio*100}}%;border-right:1px solid #000"></div>
         </div>
       </div>
     </div>
   </ion-content>
   <div style="position:absolute;bottom:8px; right: 8px;">
-    <button type="button" ng-click="addPocket()" class="btn btn-primary btn-addpocket btn-circle btn-lg"><i class="fa fa-plus"></i></button>
+    <button type="button" ng-click="addPocket()" class="btn btn-primary btn-addpocket btn-circle btn-lg"><i
+      class="fa fa-plus"></i></button>
   </div>
   <div style="position:absolute;bottom:8px; left: 8px;">
     <button type="button" class="btn btn-primary btn-spend btn-circle btn-lg"><i class="fa fa-bitcoin"></i></button>

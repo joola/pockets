@@ -1,5 +1,22 @@
-angular.module('starter.controllers', [])
+function shadeBlend(p, c0, c1) {
+  var n = p < 0 ? p * -1 : p, u = Math.round, w = parseInt;
+  if (c0.length > 7) {
+    var f = c0.split(","), t = (c1 ? c1 : p < 0 ? "rgb(0,0,0)" : "rgb(255,255,255)").split(","), R = w(f[0].slice(4)), G = w(f[1]), B = w(f[2]);
+    return "rgb(" + (u((w(t[0].slice(4)) - R) * n) + R) + "," + (u((w(t[1]) - G) * n) + G) + "," + (u((w(t[2]) - B) * n) + B) + ")"
+  } else {
+    var f = w(c0.slice(1), 16), t = w((c1 ? c1 : p < 0 ? "#000000" : "#FFFFFF").slice(1), 16), R1 = f >> 16, G1 = f >> 8 & 0x00FF, B1 = f & 0x0000FF;
+    return "#" + (0x1000000 + (u(((t >> 16) - R1) * n) + R1) * 0x10000 + (u(((t >> 8 & 0x00FF) - G1) * n) + G1) * 0x100 + (u(((t & 0x0000FF) - B1) * n) + B1)).toString(16).slice(1)
+  }
+}
 
+var colors = [
+  "#d35400",
+  "#c0392b",
+  "#2980b9",
+  "#7f8c8d"
+];
+
+angular.module('starter.controllers', [])
   .controller('homeCtrl', function ($scope, $state) {
     console.log('in home');
     $scope.start = function () {
@@ -64,14 +81,11 @@ angular.module('starter.controllers', [])
     };
     $scope.choosePersona = function (persona) {
       if (persona === 'student') {
-
         engine.pockets.create(student).then(function () {
           $state.go('tab.pockets');
         }).error(function (err) {
-          if (err) console.log(err);
+          if (err) throw err;
         });
-
-        //$state.go('tab.pockets');
       }
     };
   })
@@ -87,67 +101,22 @@ angular.module('starter.controllers', [])
       $scope.pocketName = 'root';
 
     engine.pockets.get({name: $scope.pocketName}).then(function (result) {
+      var currentColor = result.color;
+      var i = 1;
+
+      for (var k in result.pockets) {
+        if (result.pockets.hasOwnProperty(k)) {
+          if (!result.pockets[k].color && result.pockets[k] != 'root')
+            result.pockets[k].color = shadeBlend(i / 10, currentColor);
+        }
+        i++;
+      }
+
       $scope.pockets = result;
     }).error(function (err) {
       if (err)
         throw err;
     });
-
-    /*
-     $scope.pockets = {
-     parent: null,
-     name: 'root',
-     pockets: {
-     savings: {
-     parent: 'root',
-     name: 'Savings',
-     hard_ratio: 0.33,
-     color: '#8e44ad',
-     pockets: {
-     house: {
-     name: 'House',
-     parent: 'savings',
-     hard_ratio: 0.7
-     },
-     tv: {
-     name: 'TV',
-     parent: 'savings',
-     hard_ratio: 0.3
-     }
-     }
-     },
-     spending: {
-     parent: 'root',
-     name: 'Spending',
-     hard_ratio: 0.333,
-     color: '#2c3e50',
-     pockets: {
-     'shopping': {
-     parent: 'spending',
-     name: 'shopping',
-     hard_ratio: 0.4
-     },
-     'cigarettes': {
-     parent: 'spending',
-     name: 'cigarettes',
-     hard_ratio: 0.3
-     },
-     rent: {
-     parent: 'spending',
-     name: 'Rent',
-     hard_ratio: 0.3
-     }
-     }
-     },
-     testing: {
-     parent: 'root',
-     color: '#cccccc',
-     name: 'testing',
-     hard_ratio: 0.333
-     }
-     }
-     };
-     */
 
     $scope.selectPocket = function (pocketName, hasChildren) {
       if (hasChildren)
@@ -162,6 +131,7 @@ angular.module('starter.controllers', [])
         '<label class="item item-input item-select">' +
         '<span class="input-label">Parent</span>' +
         '<select ng-model="newpocket.parent">' +
+        '<option value="root">root</option>' +
         '<option ng-repeat="(key, pocket) in pockets.pockets" value="{{pocket.name}}">{{pocket.name}}</option>' +
         '</select>' +
         '</label>' +
@@ -171,7 +141,11 @@ angular.module('starter.controllers', [])
         '</label>' +
         '<label class="item item-input">' +
         '<span class="input-label">Ratio</span>' +
-        '<input ng-model="newpocket.ratio" type="number" placeholder="20">' +
+        '<input ng-model="newpocket.hard_ratio" type="number" placeholder="20">' +
+        '</label>' +
+        '<label class="item item-input">' +
+        '<span class="input-label">Color</span>' +
+        '<input ng-model="newpocket.color" type="text" placeholder="#cccccc">' +
         '</label>' +
         '<label class="item item-input item-select">' +
         '<span class="input-label">Importance</span>' +
@@ -204,6 +178,7 @@ angular.module('starter.controllers', [])
         ]
       });
       myPopup.then(function (res) {
+        $scope.newpocket.hard_ratio = $scope.newpocket.hard_ratio / 100;
         engine.pockets.create($scope.newpocket).then(function () {
           //$state.go('')
         }).error(function (err) {
