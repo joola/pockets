@@ -1,73 +1,193 @@
-var traverse = require('traverse');
+var
+  async = require('async'),
+  traverse = require('traverse');
 
 var pockets = module.exports;
 
 pockets.ROOT = null;
 
 pockets.list = function (options, callback) {
-  callback = callback || emptyfunc;
+  callback = callback || function () {
+  };
 
-  return callback(null, pockets.ROOT);
-};
-
-pockets.get = function (options, callback) {
-  callback = callback || emptyfunc;
-
-  var result = null;
-  traverse.map(pockets.ROOT, function (x) {
+  var calls = [];
+  traverse.forEach(pockets.ROOT, function (x) {
     var point = this;
-    if (x && typeof x === 'object' && x.name) { //we have a pocket
-      if (x.name === options.name)
-        result = point;
+    if (x && typeof x === 'object' && x.name) {
+      var fn = function (cb) {
+        pockets.get(x, function (err, pocket_with_balance) {
+          if (err)
+            return cb(err);
+          point.update(pocket_with_balance);
+          return cb(null);
+        });
+      };
+      if (options.mock)
+        fn = function (cb) {
+          return cb(null);
+        };
+      calls.push(fn);
     }
   });
-  if (!result)
-    return callback(new Error('Pocket [' + options.name + '] cannot be found.'));
-  result = traverse.get(pockets.ROOT, result.path);
-  return callback(null, result);
+  async.series(calls, function (err) {
+    if (err)
+      return callback(err);
+    engine.bitcoin.balance(pockets.ROOT, function (err, balance) {
+      if (err)
+        return callback(err);
+      pockets.ROOT.wallet.balance = balance;
+      return callback(null, pockets.ROOT);
+    });
+
+  });
 };
 
 pockets.create = function (options, callback) {
-  callback = callback || emptyfunc;
+  callback = callback || function () {
+  };
+
+  if (options.level_ratio)
+    options.hard_ratio = options.level_ratio;
 
   if (!options.parent) {
-    pockets.ROOT = options;
-    return pockets.save({}, callback);
+    var calls = [];
+    traverse.forEach(options, function (x) {
+      var point = this;
+      if (x && typeof x === 'object' && x.name) {
+        var fn = function (cb) {
+          engine.bitcoin.createWallet({}, function (err, result) {
+            if (err)
+              return callback(err);
+            x.wallet = x.wallet || result;
+            point.update(x);
+            engine.listener.add(x.wallet.address);
+            return cb(null, result);
+          });
+        };
+        calls.push(fn);
+      }
+    });
+    async.series(calls, function (err, results) {
+      pockets.ROOT = options;
+      return pockets.save({}, callback);
+    });
   }
   else {
-    pockets.get({name: options.parent}, function (err, pocket) {
+    pockets.get({name: options.parent}, function (err, parent) {
       if (err)
         return callback(err);
-
-      pocket.pockets = pocket.pockets || {};
-      pocket.pockets[options.name] = options;
-      return pockets.save({}, callback);
+      if (!parent.pockets)
+        parent.pockets = {};
+      engine.bitcoin.createWallet({}, function (err, result) {
+        if (err)
+          return callback(err);
+        options.wallet = result;
+        parent.pockets[options.name] = options;
+        return pockets.save({}, callback);
+      });
     });
   }
 };
 
-pockets.update = function (options, callback) {
-  callback = callback || emptyfunc;
+pockets.get = function (options, callback) {
+  callback = callback || function () {
+  };
+  var recurse = function (parent, lookup) {
+    if (!parent.pockets)
+      return;
+    var found = null;
+    Object.keys(parent.pockets).forEach(function (key) {
+      var pocket = parent.pockets[key];
+      if (pocket.name === lookup) {
+        found = pocket;
+      }
+      if (!found && pocket.pockets)
+        found = recurse(pocket, lookup);
+    });
+    if (found)
+      return found;
+  };
 
-  pockets.get(options, function (err, _pocket) {
-    _pocket = engine.common.extend(_pocket, options);
+  if (pockets.ROOT.name === options.name)
+    return callback(null, pockets.ROOT);
+  var found = recurse(pockets.ROOT, options.name);
+  if (found) {
+    if (options.mock)
+      return callback(null, found);
+    engine.bitcoin.balance(found, function (err, balance) {
+      if (err)
+        return callback(err);
+      found.wallet.balance = balance;
+      return callback(null, found);
+    });
+  }
+  else
+    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
+};
+
+pockets.update = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  pockets.get(options, function (err, pocket) {
+    if (err)
+      return callback(err);
+
+    engine.common.extend(pocket, options);
     return pockets.save({}, callback);
   });
 };
 
 pockets.delete = function (options, callback) {
-  callback = callback || emptyfunc;
-
-  traverse.forEach(pockets.ROOT, function (x) {
-    var point = this;
-    if (x && typeof x === 'object' && x.name) { //we have a pocket
-      if (x.name === options.name) {
-        delete point.parent.parent.node.pockets[options.name];
+  callback = callback || function () {
+  };
+  var recurse = function (parent, lookup) {
+    var found = null;
+    Object.keys(parent.pockets).forEach(function (key, i) {
+      var pocket = parent.pockets[key];
+      if (pocket.name === lookup) {
+        found = traverse.clone(parent.pockets[pocket.name]);
+        delete parent.pockets[pocket.name];
       }
-    }
-  });
-  return pockets.save({}, callback);
+      if (!found && pocket.pockets)
+        found = recurse(pocket, lookup);
+    });
+    if (found)
+      return found;
+  };
+
+  if (pockets.ROOT[options.name] === options.name)
+    return callback(null, pockets.ROOT = {});
+
+  var found = recurse(pockets.ROOT, options.name);
+  if (found) {
+    pockets.get({name: 'root'}, function (err, rootPocket) {
+      engine.bitcoin.handleTransaction({
+        transactions: [
+          {
+            from: {
+              name: found.name,
+              wallet: found.wallet
+            },
+            to: {
+              name: 'root',
+              wallet: rootPocket.wallet
+            },
+            amount: found.wallet.balance
+          }
+        ]
+      }, function (err) {
+        if (err)
+          return callback(err);
+        engine.listener.remove(found.wallet.address);
+        pockets.save({}, callback);
+      });
+    });
+  }
+  else
+    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
 };
+
 
 pockets.save = function (options, callback) {
   engine.db.set('pockets.json', pockets.ROOT);
@@ -81,7 +201,7 @@ pockets.load = function (options, callback) {
 
 pockets.snapshot = function (options, callback) {
   var result = [];
-  traverse.map(pockets._, function (x) {
+  traverse.map(pockets.ROOT, function (x) {
     if (x && typeof x === 'object' && x.wallet && x.wallet.balance) {
       result.push({name: x.name, balance: x.wallet.balance});
     }
@@ -302,7 +422,7 @@ pockets.ensureLevelPercentages = function (options, callback) {
   var levels = 0;
   var levelPockets = {};
   var mismatch = false;
-  traverse.forEach(pockets._, function (x, i) {
+  traverse.forEach(pockets.ROOT, function (x, i) {
     var point = this;
 
     if (x && typeof x === 'object' && x.name) {
@@ -359,14 +479,14 @@ pockets.ensureLevelPercentages = function (options, callback) {
 
 pockets.getSavings = function () {
   var found = null;
-  traverse.forEach(pockets._, function (x) {
+  traverse.forEach(pockets.ROOT, function (x) {
     if (x && typeof x === 'object' && x.leaf && x.savings)
       found = x;
   });
   if (found)
     return found;
 
-  traverse.forEach(pockets._, function (x) {
+  traverse.forEach(pockets.ROOT, function (x) {
     if (x && typeof x === 'object' && x.leaf && x.name === 'pension')
       found = x;
   });
