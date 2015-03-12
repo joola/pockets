@@ -7,9 +7,15 @@
           {{value.name}}
         </div>
         <div ng-if="value.pockets" style="height:100%">
-          <div ng-repeat="(subkey, subpocket) in value.pockets" style="height:100%;width:{{subpocket.hard_ratio*100}}%;border-right:1px solid #000"></div>
+          <div class="children" ng-repeat="(subkey, subpocket) in value.pockets" style="height:100%;width:{{subpocket.hard_ratio*100}}%;border-right:1px solid #000"></div>
         </div>
       </div>
     </div>
   </ion-content>
+  <div style="position:absolute;bottom:8px; right: 8px;">
+    <button type="button" ng-click="addPocket()" class="btn btn-primary btn-addpocket btn-circle btn-lg"><i class="fa fa-plus"></i></button>
+  </div>
+  <div style="position:absolute;bottom:8px; left: 8px;">
+    <button type="button" class="btn btn-primary btn-spend btn-circle btn-lg"><i class="fa fa-bitcoin"></i></button>
+  </div>
 </ion-view>

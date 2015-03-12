@@ -18,28 +18,33 @@ engine.init = function (options, callback) {
   engine.bitcoin = require('./services/bitcoin');
   engine.pockets = require('./services/pockets');
 
-  engine.options = engine.common.extend(options || {}, {
+  engine.options = engine.common.extend({
     //default options
     promisify: false
-  });
-  console.log(engine.options);
+  }, options || {});
   if (engine.options.promisify)
     engine.promisify();
   engine.logger.info('Starting Pockets Library, version [' + engine.VERSION + '].');
-  return callback(null);
+  engine.logger.debug('Options: ' + JSON.stringify(engine.options));
+  engine.pockets.load({}, function (err) {
+    if (err)
+      return callback(err);
+    return callback(null);
+  });
 };
 
 engine.promisify = function () {
   var promisify = require('thenify-all');
-  engine.bitcoin = promisify(engine.bitcoin);
-  engine.pockets = promisify(engine.pockets);
+  engine.bitcoin = promisify.withCallback(engine.bitcoin);
+  engine.pockets = promisify.withCallback(engine.pockets);
 };
-
-if (typeof global.localStorage !== 'undefined')
-  engine.init({promisify: true});
 
 //inject globals
 require('./common/globals');
+
+//fire the engine up if we're running in a browser
+if (typeof global.localStorage !== 'undefined')
+  engine.init({promisify: true});
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../../../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/www/lib/pockets/common/config.js","./common/db":"/home/itay/dev/pockets/www/lib/pockets/common/db.js","./common/events":"/home/itay/dev/pockets/www/lib/pockets/common/events.js","./common/globals":"/home/itay/dev/pockets/www/lib/pockets/common/globals.js","./common/index":"/home/itay/dev/pockets/www/lib/pockets/common/index.js","./common/logger":"/home/itay/dev/pockets/www/lib/pockets/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js","./services/pockets":"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -30500,13 +30505,23 @@ if (typeof global.localStorage === 'undefined') {
   db._localStorage = new LocalStorage('./scratch');
 }
 else
-  db._localStorage = global.localStroage;
+  db._localStorage = global.localStorage;
 
 db.get = function (key) {
-  return db._localStorage.getItem(key);
+  var result;
+  result = db._localStorage.getItem(key);
+  try {
+    result = JSON.parse(result);
+  }
+  catch (ex) {
+
+  }
+  return result;
 };
 
 db.set = function (key, value) {
+  if (typeof value === 'object')
+    value = JSON.stringify(value);
   return db._localStorage.setItem(key, value);
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
@@ -30551,7 +30566,6 @@ var
   Buffer = require('buffer');
 
 var bitcoin = module.exports;
-
 
 bitcoin.validateWallet = function (options, callback) {
   function isAddress(string) {
@@ -30602,7 +30616,7 @@ pockets.create = function (options, callback) {
 
   if (!options.parent) {
     pockets.ROOT = options;
-    return callback(null);
+    return pockets.save({}, callback);
   }
   else {
     pockets.get({name: options.parent}, function (err, pocket) {
@@ -30611,7 +30625,7 @@ pockets.create = function (options, callback) {
 
       pocket.pockets = pocket.pockets || {};
       pocket.pockets[options.name] = options;
-      return callback(null);
+      return pockets.save({}, callback);
     });
   }
 };
@@ -30621,7 +30635,7 @@ pockets.update = function (options, callback) {
 
   pockets.get(options, function (err, _pocket) {
     _pocket = engine.common.extend(_pocket, options);
-    return callback(null);
+    return pockets.save({}, callback);
   });
 };
 
@@ -30637,6 +30651,17 @@ pockets.delete = function (options, callback) {
     }
   });
 
+  return pockets.save({}, callback);
+};
+
+pockets.save = function (options, callback) {
+  console.log('save');
+  engine.db.set('pockets.json', pockets.ROOT);
+  return callback(null);
+};
+
+pockets.load = function (options, callback) {
+  pockets.ROOT = engine.db.get('pockets.json');
   return callback(null);
 };
 },{"traverse":"/home/itay/dev/pockets/node_modules/traverse/index.js"}]},{},["./www/lib/pockets/engine.js"]);
