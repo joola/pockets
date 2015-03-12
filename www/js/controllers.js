@@ -71,7 +71,7 @@ angular.module('starter.controllers', [])
           if (err) console.log(err);
         });
 
-        $state.go('tab.pockets');
+        //$state.go('tab.pockets');
       }
     };
   })
@@ -86,9 +86,7 @@ angular.module('starter.controllers', [])
     if ($stateParams.pocketName === '')
       $scope.pocketName = 'root';
 
-    engine.pockets.get({name: $scope.pocketName}).then(function (err, result) {
-      if (err)
-        throw err;
+    engine.pockets.get({name: $scope.pocketName}).then(function (result) {
       $scope.pockets = result;
     }).error(function (err) {
       if (err)

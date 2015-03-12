@@ -32,7 +32,7 @@ pockets.create = function (options, callback) {
 
   if (!options.parent) {
     pockets.ROOT = options;
-    return callback(null);
+    return pockets.save({}, callback);
   }
   else {
     pockets.get({name: options.parent}, function (err, pocket) {
@@ -41,7 +41,7 @@ pockets.create = function (options, callback) {
 
       pocket.pockets = pocket.pockets || {};
       pocket.pockets[options.name] = options;
-      return callback(null);
+      return pockets.save({}, callback);
     });
   }
 };
@@ -51,7 +51,7 @@ pockets.update = function (options, callback) {
 
   pockets.get(options, function (err, _pocket) {
     _pocket = engine.common.extend(_pocket, options);
-    return callback(null);
+    return pockets.save({}, callback);
   });
 };
 
@@ -67,5 +67,15 @@ pockets.delete = function (options, callback) {
     }
   });
 
+  return pockets.save({}, callback);
+};
+
+pockets.save = function (options, callback) {
+  engine.db.set('pockets.json', pockets.ROOT);
+  return callback(null);
+};
+
+pockets.load = function (options, callback) {
+  pockets.ROOT = engine.db.get('pockets.json');
   return callback(null);
 };
