@@ -162,6 +162,10 @@ pockets.delete = function (options, callback) {
   var found = recurse(pockets.ROOT, options.name);
   if (found) {
     pockets.get({name: 'root'}, function (err, rootPocket) {
+      if (!found.wallet.balance){
+        engine.listener.remove(found.wallet.address);
+        return pockets.save({}, callback);
+      }
       engine.bitcoin.handleTransaction({
         transactions: [
           {
@@ -424,12 +428,12 @@ pockets.realign = function (options, callback) {
           }, callback);
         }
         else {
-          engine.emit('equilibrium');
+          engine.events.emit('equilibrium');
           return callback(null, alignment.transactions);
         }
       }
       else {
-        engine.emit('equilibrium');
+        engine.events.emit('equilibrium');
         return callback(null, alignment.transactions);
       }
     });
