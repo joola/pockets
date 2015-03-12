@@ -7,3 +7,18 @@
 .has-header.has-tabs-top {
   top: 36px;
 }
+
+.pocket-title {
+  font-size:38px;
+  font-weight:600;
+  position:absolute;
+  left:0;
+  right:0;
+  text-align:center;
+  width:100%;
+  top:42%
+}
+
+.pocket-content {
+  height:605px;
+}

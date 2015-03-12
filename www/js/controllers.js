@@ -17,6 +17,7 @@ angular.module('starter.controllers', [])
           parent: 'root',
           name: 'Savings',
           hard_ratio: 0.8,
+          color: '#8e44ad',
           pockets: {
             house: {
               name: 'House',
@@ -34,6 +35,7 @@ angular.module('starter.controllers', [])
           parent: 'root',
           name: 'Spending',
           hard_ratio: 0.2,
+          color:'#2c3e50',
           pockets: {
             'shopping': {
               parent: 'spending',
@@ -56,14 +58,69 @@ angular.module('starter.controllers', [])
     };
     $scope.choosePersona = function (persona) {
       if (persona === 'student') {
-        pockets.create(student, function(err) {
-          if (err)
-            throw err;
+        //pockets.create(student, function(err) {
+        //  if (err)
+        //    throw err;
           $state.go('tab.pockets');
-        })
+        //})
       }
     };
   })
+
+  .controller('pocketsCtrl', function($scope, $state) {
+    $scope.pockets = {
+      parent: null,
+      name: 'root',
+      pockets: {
+        savings: {
+          parent: 'root',
+          name: 'Savings',
+          hard_ratio: 0.8,
+          color: '#8e44ad',
+          pockets: {
+            house: {
+              name: 'House',
+              parent: 'savings',
+              hard_ratio: 0.7
+            },
+            tv: {
+              name: 'TV',
+              parent: 'savings',
+              hard_ratio: 0.3
+            }
+          }
+        },
+        spending: {
+          parent: 'root',
+          name: 'Spending',
+          hard_ratio: 0.2,
+          color:'#2c3e50',
+          pockets: {
+            'shopping': {
+              parent: 'spending',
+              name: 'shopping',
+              hard_ratio: 0.4
+            },
+            'cigarettes': {
+              parent: 'spending',
+              name: 'cigarettes',
+              hard_ratio: 0.3
+            },
+            rent: {
+              parent: 'spending',
+              name: 'Rent',
+              hard_ratio: 0.3
+            }
+          }
+        }
+      }
+    };
+    $scope.selectPocket = function(pocketName) {
+      $state.go('tab.pocket-details', {pocketName: pocketName});
+    };
+
+  })
+
   .controller('DashCtrl', function ($scope) {
   })
 
