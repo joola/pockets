@@ -2,16 +2,31 @@
   "name": "rocket-pocket",
   "version": "1.0.0",
   "description": "rocket-pocket: An Ionic project",
+  "scripts": {
+    "test": "mocha"
+  },
   "dependencies": {
+    "browserify": "^9.0.3",
     "gulp": "^3.5.6",
-    "gulp-sass": "^0.7.1",
     "gulp-concat": "^2.2.0",
     "gulp-minify-css": "^0.3.0",
-    "gulp-rename": "^1.2.0"
+    "gulp-rename": "^1.2.0",
+    "gulp-sass": "^0.7.1",
+    "gulp-sourcemaps": "^1.5.0",
+    "node-localstorage": "^0.5.0",
+    "underscore": "^1.8.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^2.4.0"
   },
   "devDependencies": {
     "bower": "^1.3.3",
     "gulp-util": "^2.2.14",
-    "shelljs": "^0.3.0"
+    "shelljs": "^0.3.0",
+    "assert": "^1.3.0",
+    "chai": "^2.1.1",
+    "should": "^5.2.0",
+    "sinon": "^1.13.0",
+    "sinon-chai": "^2.7.0"
   }
 }
