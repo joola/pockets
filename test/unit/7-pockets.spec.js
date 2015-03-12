@@ -1,4 +1,4 @@
-describe("bitcoin", function () {
+describe("pockets", function () {
   it("should validate a address", function (done) {
     engine.bitcoin.validateWallet({address: 'mpSKAvSLeZTHbstNEzYKs7fxw9fat6a1Y5'}, done);
   });
