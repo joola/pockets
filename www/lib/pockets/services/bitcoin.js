@@ -1,3 +1,7 @@
+/**
+ * Bitcoin services for pockets.
+ */
+  
 var
   _bitcoin = require('bitcoinjs-lib'),
   base58 = require('bs58'),
@@ -7,6 +11,13 @@ var
 
 var bitcoin = module.exports;
 
+/**
+ * Validates a wallet address
+ * @param {object} options contains the `address` attribute
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
 bitcoin.validateWallet = function (options, callback) {
   function isAddress(string) {
     try {
