@@ -11,7 +11,7 @@ describe("bitcoin", function () {
     });
   });
 
-  it("should send a bitcoin", function (done) {
+  xit("should send a bitcoin", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
