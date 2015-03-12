@@ -1,14 +1,20 @@
 {
-  "name": "rocket-pocket",
+  "name": "pockets",
   "version": "1.0.0",
-  "description": "rocket-pocket: An Ionic project",
+  "description": "pockets: An Ionic project",
   "scripts": {
     "test": "mocha",
     "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test"
   },
   "dependencies": {
+    "bigi": "^1.4.0",
+    "bitcoinjs-lib": "^1.5.1",
+    "bluebird": "^2.9.14",
     "brfs": "^1.4.0",
     "browserify": "^9.0.3",
+    "bs58": "^2.0.1",
+    "buffer": "^3.1.1",
+    "ecurve": "^1.0.1",
     "eventemitter2": "^0.4.14",
     "gulp": "^3.5.6",
     "gulp-concat": "^2.2.0",
@@ -19,6 +25,7 @@
     "istanbul": "^0.3.7",
     "mocha": "^2.2.1",
     "node-localstorage": "^0.5.0",
+    "thenify-all": "^1.6.0",
     "underscore": "^1.8.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",

@@ -1,20 +1,40 @@
 //the object
-var pockets = global.pockets = {};
+var engine = global.engine = {};
 
-pockets.VERSION = require('../../../package.json').version;
+engine.VERSION = require('../../../package.json').version;
 
-pockets.init = function (options, callback) {
-  pockets.common = require('./common/index');
-  pockets.config = require('./common/config');
-  pockets.logger = require('./common/logger');
-  pockets.db = require('./common/db');
-  pockets.events = require('./common/events');
+engine.init = function (options, callback) {
+  callback = callback || emptyfunc;
+  //common
+  engine.common = require('./common/index');
+  engine.config = require('./common/config');
+  engine.logger = require('./common/logger');
+  engine.db = require('./common/db');
+  engine.events = require('./common/events');
 
-  pockets.options = pockets.common.extend(options, {
+  //services
+  engine.bitcoin = require('./services/bitcoin');
+  engine.pockets = require('./services/pockets');
+
+  engine.options = engine.common.extend(options || {}, {
     //default options
+    promisify: false
   });
-  pockets.logger.info('Starting Pockets Library, version [' + pockets.VERSION + '].');
+  console.log(engine.options);
+  if (engine.options.promisify)
+    engine.promisify();
+  engine.logger.info('Starting Pockets Library, version [' + engine.VERSION + '].');
+  return callback(null);
+};
+
+engine.promisify = function () {
+  var promisify = require('thenify-all');
+  engine.bitcoin = promisify(engine.bitcoin);
+  engine.pockets = promisify(engine.pockets);
 };
 
 if (typeof global.localStorage !== 'undefined')
-  pockets.init({});
+  engine.init({promisify: true});
+
+//inject globals
+require('./common/globals');
