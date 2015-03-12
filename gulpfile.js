@@ -56,7 +56,7 @@ gulp.task('git-check', function (done) {
   done();
 });
 
-var bundler = watchify(browserify(paths.pockets_lib_index, watchify.args));
+var bundler = browserify(paths.pockets_lib_index, watchify.args);
 bundler.transform('brfs');
 
 var watched = watchify(bundler);
