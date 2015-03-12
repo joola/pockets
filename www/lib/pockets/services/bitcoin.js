@@ -7,7 +7,6 @@ var
 
 var bitcoin = module.exports;
 
-
 bitcoin.validateWallet = function (options, callback) {
   function isAddress(string) {
     try {

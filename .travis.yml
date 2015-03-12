@@ -1,6 +1,16 @@
 language: node_js
 node_js:
   - "0.10"
-  - "0.11"
-  - "0.12"
-  - "iojs"
+
+branches:
+  only:
+  - master
+  - develop
+
+script:
+  - npm run test:coverage
+  - npm run build
+
+after_success:
+  - npm run coveralls
+

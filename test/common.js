@@ -7,7 +7,7 @@ var chai = require('chai');
 chai.use(require('sinon-chai'));
 global.expect = chai.expect;
 
-require('../www/lib/pockets/pockets');
+require('../www/lib/pockets/engine');
 
 engine.init();
 
