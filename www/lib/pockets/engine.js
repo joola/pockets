@@ -16,11 +16,10 @@ engine.init = function (options, callback) {
   engine.bitcoin = require('./services/bitcoin');
   engine.pockets = require('./services/pockets');
 
-  engine.options = engine.common.extend(options || {}, {
+  engine.options = engine.common.extend({
     //default options
     promisify: false
-  });
-  console.log(engine.options);
+  }, options || {});
   if (engine.options.promisify)
     engine.promisify();
   engine.logger.info('Starting Pockets Library, version [' + engine.VERSION + '].');
@@ -33,8 +32,9 @@ engine.promisify = function () {
   engine.pockets = promisify(engine.pockets);
 };
 
-if (typeof global.localStorage !== 'undefined')
-  engine.init({promisify: true});
-
 //inject globals
 require('./common/globals');
+
+//fire the engine up if we're running in a browser
+if (typeof global.localStorage !== 'undefined')
+  engine.init({promisify: true});
