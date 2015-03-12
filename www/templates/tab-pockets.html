@@ -1,0 +1,15 @@
+<ion-view view-title="My pockets">
+  <ion-content>
+    <div class="pocket-content">
+      <div ng-repeat="(key, value) in pockets.pockets" ,
+           style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;" ng-click="selectPocket('{{value.name}}', '{{value.pockets}}')">
+        <div class="pocket-title" style="background-color:{{value.color}}">
+          {{value.name}}
+        </div>
+        <div ng-if="value.pockets" style="height:100%">
+          <div ng-repeat="(subkey, subpocket) in value.pockets" style="height:100%;width:{{subpocket.hard_ratio*100}}%;border-right:1px solid #000"></div>
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>

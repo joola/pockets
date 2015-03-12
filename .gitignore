@@ -7,3 +7,7 @@ plugins/
 
 .idea
 npm-debug.log
+
+scratch
+
+coverage
