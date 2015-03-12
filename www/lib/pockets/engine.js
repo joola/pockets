@@ -28,6 +28,16 @@ engine.init = function (options, callback) {
   engine.pockets.load({}, function (err) {
     if (err)
       return callback(err);
+
+    var fn = function () {
+      console.log('Wallets updated');
+      engine.pockets.realign({});
+    };
+    engine.events.on('wallet-update', fn);
+    engine.events.on('equilibrium', function () {
+      console.log('Equilibrium reached!');
+    });
+
     return callback(null);
   });
 };
