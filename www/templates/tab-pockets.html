@@ -2,7 +2,7 @@
   <ion-content>
     <div class="pocket-content">
       <div ng-repeat="(key, value) in pockets.pockets" ,
-           style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;" ng-click="selectPocket('{{value.name}}')">
+           style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;" ng-click="selectPocket('{{value.name}}', '{{value.pockets}}')">
         <div class="pocket-title" style="background-color:{{value.color}}">
           {{value.name}}
         </div>

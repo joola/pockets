@@ -59,11 +59,21 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       })
 
       .state('tab.pockets', {
-        url: '/pockets',
+        url: '/pockets/:pocketName',
         views: {
           'tab-pockets': {
             templateUrl: 'templates/tab-pockets.html',
             controller: 'pocketsCtrl'
+          }
+        }
+      })
+
+      .state('tab.pocket-details', {
+        url: '/pocket-details/:pocketName',
+        views: {
+          'tab-pocket-details': {
+            templateUrl: 'templates/tab-pocket-details.html',
+            controller: 'pocketDetailsCtrl'
           }
         }
       })
