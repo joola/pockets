@@ -1,7 +1,7 @@
 /**
  * Bitcoin services for pockets.
  */
-  
+
 var
   _bitcoin = require('bitcoinjs-lib'),
   base58 = require('bs58'),
