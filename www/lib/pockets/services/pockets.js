@@ -189,9 +189,27 @@ pockets.delete = function (options, callback) {
 };
 
 
+pockets.validate = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  return engine.bitcoin.validate({address: options.wallet.address}, callback);
+};
+
 pockets.save = function (options, callback) {
-  engine.db.set('pockets.json', pockets.ROOT);
-  return callback(null);
+  callback = callback || function () {
+  };
+
+  return pockets.realign({mock: true}, function (err) {
+    return pockets.ensureLevelPercentages({}, function (err) {
+      return pockets.realign({}, function (err) {
+        if (err)
+          return callback(err);
+        engine.db.set('pockets.json', JSON.stringify(pockets.ROOT, null, '  '));
+        return callback(null);
+      });
+    });
+  });
 };
 
 pockets.load = function (options, callback) {
