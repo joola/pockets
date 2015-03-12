@@ -7,9 +7,6 @@ branches:
   - master
   - develop
 
-before_script:
-  - sudo npm install gulp -g
-
 script:
   - npm run test:coverage
   - npm run build
