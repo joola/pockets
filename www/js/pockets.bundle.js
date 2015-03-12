@@ -20,7 +20,7 @@ engine.init = function (options, callback) {
 
   engine.options = engine.common.extend(options || {}, {
     //default options
-    promisify: false
+    //promisify: false
   });
   console.log(engine.options);
   if (engine.options.promisify)
@@ -35,11 +35,12 @@ engine.promisify = function () {
   engine.pockets = promisify(engine.pockets);
 };
 
-if (typeof global.localStorage !== 'undefined')
-  engine.init({promisify: true});
-
 //inject globals
 require('./common/globals');
+
+//fire the engine up if we're running in a browser
+if (typeof global.localStorage !== 'undefined')
+  engine.init({promisify: true});
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../../../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/www/lib/pockets/common/config.js","./common/db":"/home/itay/dev/pockets/www/lib/pockets/common/db.js","./common/events":"/home/itay/dev/pockets/www/lib/pockets/common/events.js","./common/globals":"/home/itay/dev/pockets/www/lib/pockets/common/globals.js","./common/index":"/home/itay/dev/pockets/www/lib/pockets/common/index.js","./common/logger":"/home/itay/dev/pockets/www/lib/pockets/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js","./services/pockets":"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
@@ -30551,7 +30552,6 @@ var
   Buffer = require('buffer');
 
 var bitcoin = module.exports;
-
 
 bitcoin.validateWallet = function (options, callback) {
   function isAddress(string) {
