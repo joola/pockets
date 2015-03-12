@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./www/lib/pockets/pockets.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./www/lib/pockets/engine.js":[function(require,module,exports){
 (function (global){
 //the object
 var engine = global.engine = {};
@@ -6,6 +6,7 @@ var engine = global.engine = {};
 engine.VERSION = require('../../../package.json').version;
 
 engine.init = function (options, callback) {
+  callback = callback || emptyfunc;
   //common
   engine.common = require('./common/index');
   engine.config = require('./common/config');
@@ -17,13 +18,15 @@ engine.init = function (options, callback) {
   engine.bitcoin = require('./services/bitcoin');
   engine.pockets = require('./services/pockets');
 
-  engine.options = engine.common.extend(options, {
+  engine.options = engine.common.extend(options || {}, {
     //default options
     promisify: false
   });
+  console.log(engine.options);
   if (engine.options.promisify)
     engine.promisify();
   engine.logger.info('Starting Pockets Library, version [' + engine.VERSION + '].');
+  return callback(null);
 };
 
 engine.promisify = function () {
@@ -34,8 +37,11 @@ engine.promisify = function () {
 
 if (typeof global.localStorage !== 'undefined')
   engine.init({promisify: true});
+
+//inject globals
+require('./common/globals');
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/www/lib/pockets/common/config.js","./common/db":"/home/itay/dev/pockets/www/lib/pockets/common/db.js","./common/events":"/home/itay/dev/pockets/www/lib/pockets/common/events.js","./common/index":"/home/itay/dev/pockets/www/lib/pockets/common/index.js","./common/logger":"/home/itay/dev/pockets/www/lib/pockets/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js","./services/pockets":"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
+},{"../../../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/www/lib/pockets/common/config.js","./common/db":"/home/itay/dev/pockets/www/lib/pockets/common/db.js","./common/events":"/home/itay/dev/pockets/www/lib/pockets/common/events.js","./common/globals":"/home/itay/dev/pockets/www/lib/pockets/common/globals.js","./common/index":"/home/itay/dev/pockets/www/lib/pockets/common/index.js","./common/logger":"/home/itay/dev/pockets/www/lib/pockets/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js","./services/pockets":"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -30109,49 +30115,369 @@ try {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"bluebird":"/home/itay/dev/pockets/node_modules/bluebird/js/browser/bluebird.js"}],"/home/itay/dev/pockets/package.json":[function(require,module,exports){
+},{"bluebird":"/home/itay/dev/pockets/node_modules/bluebird/js/browser/bluebird.js"}],"/home/itay/dev/pockets/node_modules/traverse/index.js":[function(require,module,exports){
+var traverse = module.exports = function (obj) {
+    return new Traverse(obj);
+};
+
+function Traverse (obj) {
+    this.value = obj;
+}
+
+Traverse.prototype.get = function (ps) {
+    var node = this.value;
+    for (var i = 0; i < ps.length; i ++) {
+        var key = ps[i];
+        if (!node || !hasOwnProperty.call(node, key)) {
+            node = undefined;
+            break;
+        }
+        node = node[key];
+    }
+    return node;
+};
+
+Traverse.prototype.has = function (ps) {
+    var node = this.value;
+    for (var i = 0; i < ps.length; i ++) {
+        var key = ps[i];
+        if (!node || !hasOwnProperty.call(node, key)) {
+            return false;
+        }
+        node = node[key];
+    }
+    return true;
+};
+
+Traverse.prototype.set = function (ps, value) {
+    var node = this.value;
+    for (var i = 0; i < ps.length - 1; i ++) {
+        var key = ps[i];
+        if (!hasOwnProperty.call(node, key)) node[key] = {};
+        node = node[key];
+    }
+    node[ps[i]] = value;
+    return value;
+};
+
+Traverse.prototype.map = function (cb) {
+    return walk(this.value, cb, true);
+};
+
+Traverse.prototype.forEach = function (cb) {
+    this.value = walk(this.value, cb, false);
+    return this.value;
+};
+
+Traverse.prototype.reduce = function (cb, init) {
+    var skip = arguments.length === 1;
+    var acc = skip ? this.value : init;
+    this.forEach(function (x) {
+        if (!this.isRoot || !skip) {
+            acc = cb.call(this, acc, x);
+        }
+    });
+    return acc;
+};
+
+Traverse.prototype.paths = function () {
+    var acc = [];
+    this.forEach(function (x) {
+        acc.push(this.path); 
+    });
+    return acc;
+};
+
+Traverse.prototype.nodes = function () {
+    var acc = [];
+    this.forEach(function (x) {
+        acc.push(this.node);
+    });
+    return acc;
+};
+
+Traverse.prototype.clone = function () {
+    var parents = [], nodes = [];
+    
+    return (function clone (src) {
+        for (var i = 0; i < parents.length; i++) {
+            if (parents[i] === src) {
+                return nodes[i];
+            }
+        }
+        
+        if (typeof src === 'object' && src !== null) {
+            var dst = copy(src);
+            
+            parents.push(src);
+            nodes.push(dst);
+            
+            forEach(objectKeys(src), function (key) {
+                dst[key] = clone(src[key]);
+            });
+            
+            parents.pop();
+            nodes.pop();
+            return dst;
+        }
+        else {
+            return src;
+        }
+    })(this.value);
+};
+
+function walk (root, cb, immutable) {
+    var path = [];
+    var parents = [];
+    var alive = true;
+    
+    return (function walker (node_) {
+        var node = immutable ? copy(node_) : node_;
+        var modifiers = {};
+        
+        var keepGoing = true;
+        
+        var state = {
+            node : node,
+            node_ : node_,
+            path : [].concat(path),
+            parent : parents[parents.length - 1],
+            parents : parents,
+            key : path.slice(-1)[0],
+            isRoot : path.length === 0,
+            level : path.length,
+            circular : null,
+            update : function (x, stopHere) {
+                if (!state.isRoot) {
+                    state.parent.node[state.key] = x;
+                }
+                state.node = x;
+                if (stopHere) keepGoing = false;
+            },
+            'delete' : function (stopHere) {
+                delete state.parent.node[state.key];
+                if (stopHere) keepGoing = false;
+            },
+            remove : function (stopHere) {
+                if (isArray(state.parent.node)) {
+                    state.parent.node.splice(state.key, 1);
+                }
+                else {
+                    delete state.parent.node[state.key];
+                }
+                if (stopHere) keepGoing = false;
+            },
+            keys : null,
+            before : function (f) { modifiers.before = f },
+            after : function (f) { modifiers.after = f },
+            pre : function (f) { modifiers.pre = f },
+            post : function (f) { modifiers.post = f },
+            stop : function () { alive = false },
+            block : function () { keepGoing = false }
+        };
+        
+        if (!alive) return state;
+        
+        function updateState() {
+            if (typeof state.node === 'object' && state.node !== null) {
+                if (!state.keys || state.node_ !== state.node) {
+                    state.keys = objectKeys(state.node)
+                }
+                
+                state.isLeaf = state.keys.length == 0;
+                
+                for (var i = 0; i < parents.length; i++) {
+                    if (parents[i].node_ === node_) {
+                        state.circular = parents[i];
+                        break;
+                    }
+                }
+            }
+            else {
+                state.isLeaf = true;
+                state.keys = null;
+            }
+            
+            state.notLeaf = !state.isLeaf;
+            state.notRoot = !state.isRoot;
+        }
+        
+        updateState();
+        
+        // use return values to update if defined
+        var ret = cb.call(state, state.node);
+        if (ret !== undefined && state.update) state.update(ret);
+        
+        if (modifiers.before) modifiers.before.call(state, state.node);
+        
+        if (!keepGoing) return state;
+        
+        if (typeof state.node == 'object'
+        && state.node !== null && !state.circular) {
+            parents.push(state);
+            
+            updateState();
+            
+            forEach(state.keys, function (key, i) {
+                path.push(key);
+                
+                if (modifiers.pre) modifiers.pre.call(state, state.node[key], key);
+                
+                var child = walker(state.node[key]);
+                if (immutable && hasOwnProperty.call(state.node, key)) {
+                    state.node[key] = child.node;
+                }
+                
+                child.isLast = i == state.keys.length - 1;
+                child.isFirst = i == 0;
+                
+                if (modifiers.post) modifiers.post.call(state, child);
+                
+                path.pop();
+            });
+            parents.pop();
+        }
+        
+        if (modifiers.after) modifiers.after.call(state, state.node);
+        
+        return state;
+    })(root).node;
+}
+
+function copy (src) {
+    if (typeof src === 'object' && src !== null) {
+        var dst;
+        
+        if (isArray(src)) {
+            dst = [];
+        }
+        else if (isDate(src)) {
+            dst = new Date(src.getTime ? src.getTime() : src);
+        }
+        else if (isRegExp(src)) {
+            dst = new RegExp(src);
+        }
+        else if (isError(src)) {
+            dst = { message: src.message };
+        }
+        else if (isBoolean(src)) {
+            dst = new Boolean(src);
+        }
+        else if (isNumber(src)) {
+            dst = new Number(src);
+        }
+        else if (isString(src)) {
+            dst = new String(src);
+        }
+        else if (Object.create && Object.getPrototypeOf) {
+            dst = Object.create(Object.getPrototypeOf(src));
+        }
+        else if (src.constructor === Object) {
+            dst = {};
+        }
+        else {
+            var proto =
+                (src.constructor && src.constructor.prototype)
+                || src.__proto__
+                || {}
+            ;
+            var T = function () {};
+            T.prototype = proto;
+            dst = new T;
+        }
+        
+        forEach(objectKeys(src), function (key) {
+            dst[key] = src[key];
+        });
+        return dst;
+    }
+    else return src;
+}
+
+var objectKeys = Object.keys || function keys (obj) {
+    var res = [];
+    for (var key in obj) res.push(key)
+    return res;
+};
+
+function toS (obj) { return Object.prototype.toString.call(obj) }
+function isDate (obj) { return toS(obj) === '[object Date]' }
+function isRegExp (obj) { return toS(obj) === '[object RegExp]' }
+function isError (obj) { return toS(obj) === '[object Error]' }
+function isBoolean (obj) { return toS(obj) === '[object Boolean]' }
+function isNumber (obj) { return toS(obj) === '[object Number]' }
+function isString (obj) { return toS(obj) === '[object String]' }
+
+var isArray = Array.isArray || function isArray (xs) {
+    return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+var forEach = function (xs, fn) {
+    if (xs.forEach) return xs.forEach(fn)
+    else for (var i = 0; i < xs.length; i++) {
+        fn(xs[i], i, xs);
+    }
+};
+
+forEach(objectKeys(Traverse.prototype), function (key) {
+    traverse[key] = function (obj) {
+        var args = [].slice.call(arguments, 1);
+        var t = new Traverse(obj);
+        return t[key].apply(t, args);
+    };
+});
+
+var hasOwnProperty = Object.hasOwnProperty || function (obj, key) {
+    return key in obj;
+};
+
+},{}],"/home/itay/dev/pockets/package.json":[function(require,module,exports){
 module.exports={
-  "name": "rocket-pocket",
+  "name": "pockets",
   "version": "1.0.0",
-  "description": "rocket-pocket: An Ionic project",
+  "description": "pockets: An Ionic project",
   "scripts": {
     "test": "mocha",
-    "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test"
+    "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test",
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "build": "gulp build"
   },
   "dependencies": {
     "bigi": "^1.4.0",
     "bitcoinjs-lib": "^1.5.1",
     "bluebird": "^2.9.14",
-    "brfs": "^1.4.0",
-    "browserify": "^9.0.3",
     "bs58": "^2.0.1",
     "buffer": "^3.1.1",
     "ecurve": "^1.0.1",
     "eventemitter2": "^0.4.14",
+    "node-localstorage": "^0.5.0",
+    "thenify-all": "^1.6.0",
+    "traverse": "^0.6.6",
+    "underscore": "^1.8.2"
+  },
+  "devDependencies": {
+    "brfs": "^1.4.0",
+    "browserify": "^9.0.3",
+    "assert": "^1.3.0",
+    "bower": "^1.3.3",
+    "chai": "^2.1.1",
+    "coveralls": "^2.11.2",
     "gulp": "^3.5.6",
     "gulp-concat": "^2.2.0",
     "gulp-minify-css": "^0.3.0",
     "gulp-rename": "^1.2.0",
     "gulp-sass": "^0.7.1",
     "gulp-sourcemaps": "^1.5.0",
+    "gulp-util": "^2.2.14",
     "istanbul": "^0.3.7",
     "mocha": "^2.2.1",
-    "node-localstorage": "^0.5.0",
-    "thenify-all": "^1.6.0",
-    "underscore": "^1.8.2",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0",
-    "watchify": "^2.4.0"
-  },
-  "devDependencies": {
-    "bower": "^1.3.3",
-    "gulp-util": "^2.2.14",
     "shelljs": "^0.3.0",
-    "assert": "^1.3.0",
-    "chai": "^2.1.1",
     "should": "^5.2.0",
     "sinon": "^1.13.0",
-    "sinon-chai": "^2.7.0"
+    "sinon-chai": "^2.7.0",
+    "watchify": "^2.4.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
 
@@ -30191,7 +30517,13 @@ var
 var _events = new EventEmitter2({wildcard: true, newListener: true});
 
 module.exports = exports = _events;
-},{"eventemitter2":"/home/itay/dev/pockets/node_modules/eventemitter2/lib/eventemitter2.js"}],"/home/itay/dev/pockets/www/lib/pockets/common/index.js":[function(require,module,exports){
+},{"eventemitter2":"/home/itay/dev/pockets/node_modules/eventemitter2/lib/eventemitter2.js"}],"/home/itay/dev/pockets/www/lib/pockets/common/globals.js":[function(require,module,exports){
+(function (global){
+global.emptyfunc = function () {
+
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],"/home/itay/dev/pockets/www/lib/pockets/common/index.js":[function(require,module,exports){
 var util = require('util');
 
 var common = module.exports;
@@ -30236,10 +30568,77 @@ bitcoin.validateWallet = function (options, callback) {
   return callback(new Error('Invalid wallet address [' + options.address + '].'))
 };
 },{"bigi":"/home/itay/dev/pockets/node_modules/bigi/lib/index.js","bitcoinjs-lib":"/home/itay/dev/pockets/node_modules/bitcoinjs-lib/src/index.js","bs58":"/home/itay/dev/pockets/node_modules/bs58/lib/bs58.js","buffer":"/home/itay/dev/pockets/node_modules/browserify/node_modules/buffer/index.js","ecurve":"/home/itay/dev/pockets/node_modules/ecurve/lib/index.js"}],"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js":[function(require,module,exports){
-/**
- * Created by itay on 3/12/15.
- */
+var traverse = require('traverse');
 
-},{}]},{},["./www/lib/pockets/pockets.js"]);
+var pockets = module.exports;
+
+pockets.ROOT = null;
+
+pockets.list = function (options, callback) {
+  callback = callback || emptyfunc;
+
+  return callback(null, pockets.ROOT);
+};
+
+pockets.get = function (options, callback) {
+  callback = callback || emptyfunc;
+
+  var result = null;
+  traverse.map(pockets.ROOT, function (x) {
+    var point = this;
+    if (x && typeof x === 'object' && x.name) { //we have a pocket
+      if (x.name === options.name)
+        result = point;
+    }
+  });
+  if (!result)
+    return callback(new Error('Pocket [' + options.name + '] cannot be found.'));
+  result = traverse.get(pockets.ROOT, result.path);
+  return callback(null, result);
+};
+
+pockets.create = function (options, callback) {
+  callback = callback || emptyfunc;
+
+  if (!options.parent) {
+    pockets.ROOT = options;
+    return callback(null);
+  }
+  else {
+    pockets.get({name: options.parent}, function (err, pocket) {
+      if (err)
+        return callback(err);
+
+      pocket.pockets = pocket.pockets || {};
+      pocket.pockets[options.name] = options;
+      return callback(null);
+    });
+  }
+};
+
+pockets.update = function (options, callback) {
+  callback = callback || emptyfunc;
+
+  pockets.get(options, function (err, _pocket) {
+    _pocket = engine.common.extend(_pocket, options);
+    return callback(null);
+  });
+};
+
+pockets.delete = function (options, callback) {
+  callback = callback || emptyfunc;
+
+  traverse.forEach(pockets.ROOT, function (x) {
+    var point = this;
+    if (x && typeof x === 'object' && x.name) { //we have a pocket
+      if (x.name === options.name) {
+        delete point.parent.parent.node.pockets[options.name];
+      }
+    }
+  });
+
+  return callback(null);
+};
+},{"traverse":"/home/itay/dev/pockets/node_modules/traverse/index.js"}]},{},["./www/lib/pockets/engine.js"]);
 
 //# sourceMappingURL=pockets.bundle.js.map

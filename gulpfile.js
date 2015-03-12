@@ -59,10 +59,9 @@ gulp.task('git-check', function (done) {
 var bundler = browserify(paths.pockets_lib_index, watchify.args);
 bundler.transform('brfs');
 
-var watched = watchify(bundler);
-
 gulp.task('build', build); // so you can run `gulp js` to build the file
 gulp.task('watch', function () {
+  var watched = watchify(bundler);
   build();
   watched.on('update', build); // on any dep update, runs the bundler
   watched.on('log', gutil.log); // output build logs to terminal

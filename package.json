@@ -5,7 +5,8 @@
   "scripts": {
     "test": "mocha",
     "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test",
-    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+    "build": "gulp build"
   },
   "dependencies": {
     "bigi": "^1.4.0",
