@@ -58,6 +58,14 @@ pockets.update = function (options, callback) {
 pockets.delete = function (options, callback) {
   callback = callback || emptyfunc;
 
+  traverse.forEach(pockets.ROOT, function (x) {
+    var point = this;
+    if (x && typeof x === 'object' && x.name) { //we have a pocket
+      if (x.name === options.name) {
+        delete point.parent.parent.node.pockets[options.name];
+      }
+    }
+  });
 
   return callback(null);
 };

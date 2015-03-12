@@ -39,4 +39,15 @@ describe("pockets", function () {
       });
     });
   });
+
+  it("should delete a pocket", function (done) {
+    engine.pockets.delete({
+      name: 'savings'
+    }, function (err) {
+      if (err)
+        return done(err);
+      expect(engine.pockets.ROOT.pockets.savings).to.be.undefined;
+      done();
+    });
+  });
 });
