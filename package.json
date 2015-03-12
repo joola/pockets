@@ -3,17 +3,20 @@
   "version": "1.0.0",
   "description": "rocket-pocket: An Ionic project",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test"
   },
   "dependencies": {
     "brfs": "^1.4.0",
     "browserify": "^9.0.3",
+    "eventemitter2": "^0.4.14",
     "gulp": "^3.5.6",
     "gulp-concat": "^2.2.0",
     "gulp-minify-css": "^0.3.0",
     "gulp-rename": "^1.2.0",
     "gulp-sass": "^0.7.1",
     "gulp-sourcemaps": "^1.5.0",
+    "istanbul": "^0.3.7",
     "mocha": "^2.2.1",
     "node-localstorage": "^0.5.0",
     "underscore": "^1.8.2",
