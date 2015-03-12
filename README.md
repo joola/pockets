@@ -1,1 +1,1 @@
-# Pockets
+# Pockets [![Build Status](https://travis-ci.org/joola/pockets.svg)](https://travis-ci.org/joola/pockets)
