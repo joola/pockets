@@ -11,7 +11,7 @@ config.get = function (
 };
 
 /**
- *
+ * Store a configuration value by key
  * @param {string} key the name of the configuration key to store
  * @param {*} value the configuration value to store
  */

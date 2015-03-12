@@ -89,7 +89,6 @@ pockets.snapshot = function (options, callback) {
   return callback(null, result);
 };
 
-
 pockets.totalBalance = function (options, callback) {
   var balance = 0;
   return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
