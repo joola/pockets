@@ -14,6 +14,7 @@ var watchify = require('watchify');
 var browserify = require('browserify');
 
 var paths = {
+  pockets_lib_index: './www/lib/pockets/pockets.js',
   sass: ['./scss/**/*.scss']
 };
 
@@ -55,8 +56,7 @@ gulp.task('git-check', function (done) {
   done();
 });
 
-
-var bundler = watchify(browserify('./src/index.js', watchify.args));
+var bundler = watchify(browserify(paths.pockets_lib_index, watchify.args));
 bundler.transform('brfs');
 
 var watched = watchify(bundler);
@@ -71,9 +71,9 @@ gulp.task('watch', function () {
 function build() {
   return bundler.bundle()
     .on('error', gutil.log.bind(gutil, 'Browserify Error'))
-    .pipe(source('bundle.js'))
+    .pipe(source('pockets.bundle.js'))
     .pipe(buffer())
     .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
     .pipe(sourcemaps.write('./')) // writes .map file
-    .pipe(gulp.dest('./dist'));
+    .pipe(gulp.dest('./www/js'));
 }

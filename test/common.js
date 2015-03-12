@@ -7,6 +7,6 @@ var chai = require('chai');
 chai.use(require('sinon-chai'));
 global.expect = chai.expect;
 
-require('../www/lib/rpocket/rpocket');
+require('../www/lib/pockets/pockets');
 
 global.common = exports;

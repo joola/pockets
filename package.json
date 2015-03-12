@@ -6,6 +6,7 @@
     "test": "mocha"
   },
   "dependencies": {
+    "brfs": "^1.4.0",
     "browserify": "^9.0.3",
     "gulp": "^3.5.6",
     "gulp-concat": "^2.2.0",
