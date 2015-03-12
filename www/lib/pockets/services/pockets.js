@@ -79,3 +79,13 @@ pockets.load = function (options, callback) {
   pockets.ROOT = engine.db.get('pockets.json');
   return callback(null);
 };
+
+pockets.snapshot = function (options, callback) {
+  var result = [];
+  traverse.map(pockets._, function (x) {
+    if (x && typeof x === 'object' && x.wallet && x.wallet.balance) {
+      result.push({name: x.name, balance: x.wallet.balance});
+    }
+  });
+  return callback(null, result);
+};
