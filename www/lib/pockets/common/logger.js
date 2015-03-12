@@ -1,3 +1,8 @@
-/**
- * Created by itay on 3/12/15.
- */
+var logger = module.exports;
+
+['silly', 'trace', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
+  logger[level] = function (msg) {
+    if (console[level])
+      console[level](msg);
+  }
+});
