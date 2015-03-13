@@ -11,7 +11,7 @@ describe("bitcoin", function () {
     });
   });
 
-  xit("should send a bitcoin", function (done) {
+  it("should send a bitcoin", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
@@ -56,11 +56,5 @@ describe("bitcoin", function () {
         ]
       }, done)
     });
-  });
-
-  xit("should listen for a wallet update", function (done) {
-    engine.listener.add('mpSKAvSLeZTHbstNEzYKs7fxw9fat6a1Y5');
-    engine.events.on('wallet-update',done);
-    //now send the money
   });
 });

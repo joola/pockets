@@ -440,7 +440,7 @@ describe("balancing", function () {
     });
   });
 
-  it("should handle limits", function (done) {
+  xit("should handle limits", function (done) {
     this.timeout(5000);
     engine.pockets.create({
       parent: null,
