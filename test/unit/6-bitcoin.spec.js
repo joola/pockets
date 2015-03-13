@@ -23,7 +23,7 @@ describe("bitcoin", function () {
     setTimeout(done, 2500);
   });
 
-  it("should send a bitcoin from ocket to pocket", function (done) {
+  it("should send a bitcoin from pocket to pocket", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
@@ -93,27 +93,23 @@ describe("bitcoin", function () {
       if (err)
         return done(err);
 
-      engine.bitcoin.handleTransaction({
-        transactions: [
-          {
-            from: {
-              name: 'root',
-              wallet: {
-                address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r',
-                key: 'cS15SvoeH6cwTL9mfZGK3dpEpCDprFq7K4b1zEeLV5CpxUf3wYFY'
-              }
-            },
-            to: {
-              name: 'test',
-              wallet: {
-                address: 'n14gnULbKCPxJJmxbSiKT9nPxFRZMtutaq',
-                key: 'cVdx1w953mFriCNmyAmLxNE2S6CXWi9w7aCC2qH34Aw11BMWTR4J'
-              }
-            },
-            amount: 0.001
+      engine.bitcoin.sendMoney({
+        from: {
+          name: 'root',
+          wallet: {
+            address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r',
+            key: 'cS15SvoeH6cwTL9mfZGK3dpEpCDprFq7K4b1zEeLV5CpxUf3wYFY'
           }
-        ]
-      }, done)
+        },
+        to: {
+          name: 'test',
+          wallet: {
+            address: 'n14gnULbKCPxJJmxbSiKT9nPxFRZMtutaq',
+            key: 'cVdx1w953mFriCNmyAmLxNE2S6CXWi9w7aCC2qH34Aw11BMWTR4J'
+          }
+        },
+        amount: 0.001
+                }, done)
     });
   });
 });
