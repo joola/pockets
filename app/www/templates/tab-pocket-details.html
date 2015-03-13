@@ -2,7 +2,8 @@
   <ion-content class="padding" style="text-align:center;">
     <br><div style="text-align:center;"><h3>{{pockets.wallet.balance}} BTC</h3></div>
     <div><h4>Parent: {{pockets.parent.name}}</h4></div>
-    <div><h4>Ratio: {{pockets.level_ratio*100}}%</h4></div>
+    <div><h4>Level ratio: {{pockets.level_ratio*100}}%</h4></div>
+    <div><h4>Total ratio: {{pockets.actual_ratio*100 | number:0}}%</h4></div>
     <div style="text-align:center;">
       <qrcode></qrcode><br>
       <button class="btn btn-lg btn-danger button-positive" ng-click="spendDialog()">SPEND</button>
