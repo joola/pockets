@@ -280,6 +280,13 @@ pockets.load = function (options, callback) {
   return callback(null);
 };
 
+/**
+ * Returns a snapshot of the current pocket collection
+ * @param {object} options object containing options for snapshot
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.snapshot = function (options, callback) {
   var result = [];
   traverse.map(pockets.ROOT, function (x) {
@@ -290,6 +297,13 @@ pockets.snapshot = function (options, callback) {
   return callback(null, result);
 };
 
+/**
+ * Retrieves the pocket's balance
+ * @param {object} options object containing options for getting balance
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.totalBalance = function (options, callback) {
   var balance = 0;
   return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
@@ -301,6 +315,13 @@ pockets.totalBalance = function (options, callback) {
   });
 };
 
+/**
+ * Realign/rebalance the pockets collection
+ * @param {object} options object containing options for realign
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.realign = function (options, callback) {
   callback = callback || function () {
   };
@@ -499,6 +520,13 @@ pockets.realign = function (options, callback) {
   });
 };
 
+/**
+ * Ensures that pockets across a level fill up to 100%
+ * @param {object} options object containing options for ensuring levels
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.ensureLevelPercentages = function (options, callback) {
   var levels = 0;
   var levelPockets = {};
@@ -558,6 +586,13 @@ pockets.ensureLevelPercentages = function (options, callback) {
   return callback(null, mismatch);
 };
 
+/**
+ * Returns the dedicated savings pocket
+ * @param {object} options object containing options for getting the savings pocket
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.getSavings = function () {
   var found = null;
   traverse.forEach(pockets.ROOT, function (x) {
