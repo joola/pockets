@@ -25,9 +25,56 @@ $ npm run build
 
 ## How does it work?
 
+Pockets uses a simple JSON structure to describe the pocket collection and the relationship between sibling pockets.
+
+```js
+{
+  name: 'root',
+  pockets: {
+    savings: {
+      name: 'savings',
+      level_ratio: 0.5,
+      pockets: {
+        house: {
+          name: 'house'
+        },
+        pension: {
+          name: 'pension',
+          level_ratio: 0.7
+        }
+      }
+    },
+    ongoing: {
+      name: 'ongoing',
+      pockets: {
+        rent: {
+          name: 'rent',
+          limit: 2.5
+        },
+        food: {
+          name: 'food',
+          pockets:{
+            vitamins:{
+              name: 'vitamins'
+            },
+            beer:{
+              name: 'beer'
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Pockets monitors the wallets in the collection for any balance updates, when a new update is discovered, Pockets will balance the collection according to the logic defined.
+
 ## To do
-- Bug fixing and better testing
-- Support for using your existing wallet
+- HD wallets
+- Better test coverage and use cases
+- Minor bug fixes
+- Support for using your existing wallet via import
 - Security and authentication mechanism
 - Backup/restore capability
 
