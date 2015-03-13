@@ -69,7 +69,7 @@ angular.module('starter.controllers', [])
           hard_ratio: 0.30,
           color: '#2c3e50',
           pockets: {
-            'Shopping': {
+            'shopping': {
               parent: 'spending',
               name: 'shopping',
               hard_ratio: 0.25,
@@ -79,7 +79,7 @@ angular.module('starter.controllers', [])
                 balance: 22.5
               }
             },
-            'Cigarettes': {
+            'cigarettes': {
               parent: 'spending',
               name: 'cigarettes',
               hard_ratio: 0.25,

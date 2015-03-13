@@ -1,6 +1,6 @@
 <ion-view view-title="{{pockets.name}}">
   <ion-content class="padding" style="text-align:center;">
-    <br><div style="text-align:center;"><h3>{{pockets.wallet.balance}} BTC</h3></div>
+    <br><div style="text-align:center;"><h3>{{pockets.wallet.balance}} <span style="text-transform:none">mBTC</span></h3></div>
     <div><h4>Parent: {{pockets.parent.name}}</h4></div>
     <div><h4>Level ratio: {{pockets.level_ratio*100}}%</h4></div>
     <div><h4>Total ratio: {{pockets.actual_ratio*100 | number:0}}%</h4></div>
