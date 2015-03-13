@@ -68212,7 +68212,6 @@ listener.remove = function (address) {
   return listener.addresses.splice(listener.addresses.indexOf(address), 1);
 };
 listener.doInterval = function () {
-  console.log('interval');
   var uri = 'https://test-insight.bitpay.com/api/addr/';
   async.map(listener.addresses, function (address, cb) {
     var _uri = uri + address;
