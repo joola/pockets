@@ -11,6 +11,18 @@ describe("bitcoin", function () {
     });
   });
 
+  it("should check balance for a valid a address", function (done) {
+    engine.bitcoin.balance({wallet: {address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r'}}, done);
+  });
+
+  it("should check balance every interval", function (done) {
+    var address = 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r';
+    engine.listener.balances[address] = -100;
+    engine.listener.add(address);
+    engine.listener.doInterval();
+    setTimeout(done, 2500);
+  });
+
   it("should send a bitcoin", function (done) {
     engine.pockets.create({
       parent: null,
