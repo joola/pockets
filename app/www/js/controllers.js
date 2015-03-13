@@ -331,7 +331,61 @@ angular.module('starter.controllers', [])
     }
   })
 
-  .controller('rootinfoCtrl', function ($scope) {
+  .controller('rootinfoCtrl', function ($scope, $ionicPopup) {
+    engine.pockets.get({name: 'root'}).then(function (pockets) {
+      $scope.pockets = pockets;
+    }).error(function (err) {
+      if (err)
+        throw err;
+    });
+    $scope.spendDialog = function () {
+      $scope.data = {};
+      var myPopup = $ionicPopup.show({
+        template: '<label class="item item-input">' +
+        '<span class="input-label">Amount</span>' +
+        '<input ng-model="data.amount" type="number" placeholder="0.01">' +
+        '</label>' +
+        '<label class="item item-input">' +
+        '<span class="input-label">To address</span>' +
+        '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
+        '</label>' +
+        '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>',
+        title: 'Spend from parent wallet',
+        scope: $scope,
+        buttons: [
+          {text: 'Cancel'},
+          {
+            text: '<b>Send!</b>',
+            type: 'button-positive'
+          }
+        ]
+      });
+      myPopup.then(function (res) {
+        if (res) {
+          engine.bitcoin.sendMoney({
+            from: {
+              name: 'root',
+              wallet: {
+                address: $scope.pockets.wallet.address,
+                key: $scope.pockets.wallet.key
+              }
+            },
+            to: {
+              name: 'test',
+              wallet: {
+                address: $scope.data.toAddress
+              }
+            },
+            amount: $scope.data.amount
+          }).then(function (result) {
+            console.log(result);
+          }).error(function (err) {
+            console.log(err);
+          });
+          console.log($scope.pockets.name, $scope.data.toAddress, $scope.data.amount);
+        }
+      });
+    };
     console.log('in root');
   })
 
