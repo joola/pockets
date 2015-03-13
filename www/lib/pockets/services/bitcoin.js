@@ -155,8 +155,46 @@ bitcoin.handleTransaction = function (options, callback) {
         return callback(err);
       engine.pockets.snapshot({}, function (err, snapshot) {
         console.log('after snapshot', snapshot);
-        engine.emit('wallet-update');
+        engine.events.emit('wallet-update');
         return callback(null, options);
+      });
+    });
+  });
+};
+
+
+bitcoin.sendMoney = function (options, callback) {
+  //should be a complete transaction and handle it
+  engine.pockets.snapshot({}, function (err, snapshot) {
+    //console.log('before snapshot', snapshot);
+    //mock up, update balances and trigger event.
+    var amount = options.amount;
+    engine.pockets.get({name: options.from.name, mock: true}, function (err, fromPocket) {
+      if (fromPocket)
+        fromPocket.wallet.balance = fromPocket.wallet.balance - Math.abs(amount);
+      options.to.wallet.balance = options.to.wallet.balance + Math.abs(amount);
+      console.log('[' + options.from.name + '] --> [' + options.to.name + ']', Math.abs(amount));
+      //console.log('Updating wallet [' + transaction.to.name + '] adding ' + amount);
+
+      if (options.mock || engine.options.mock) {
+        return callback(null);
+      }
+
+      bitcoin.buildTransaction(options, function (err, tx_hex) {
+        if (err)
+          return callback(err);
+        var uri = 'https://test-insight.bitpay.com/api/tx/send';
+        request.post(uri, {form: {rawtx: tx_hex}}, function (err, headers, body) {
+          if (err)
+            return callback(err);
+          if (headers.statusCode !== 200)
+            return callback(new Error('Failed to send transaction.'));
+          engine.pockets.snapshot({}, function (err, snapshot) {
+            console.log('after snapshot', snapshot);
+            engine.events.emit('wallet-update');
+            return callback(null, options);
+          });
+        });
       });
     });
   });
