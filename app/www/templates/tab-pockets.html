@@ -5,7 +5,8 @@
            style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;"
            ng-click="selectPocket(value.name, value.pockets)">
         <div class="pocket-title">
-         {{value.name}} ({{value.wallet.balance||0}} <span style="text-transform:none">mBTC</span>)
+          {{value.name}} ({{value.child_balance || value.wallet.balance || 0}} <span
+            style="text-transform:none">mBTC</span>)
         </div>
         <div ng-if="value.pockets" style="height:100%">
           <div class="children" ng-repeat="(subkey, subpocket) in value.pockets"
