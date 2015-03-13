@@ -3,11 +3,11 @@ describe("bitcoin", function () {
     engine.options.mock = false;
   });
 
-  it("should validate a address", function (done) {
+  xit("should validate a address", function (done) {
     engine.bitcoin.validateWallet({address: 'mpSKAvSLeZTHbstNEzYKs7fxw9fat6a1Y5'}, done);
   });
 
-  it("should fail validating an invalid address", function (done) {
+  xit("should fail validating an invalid address", function (done) {
     engine.bitcoin.validateWallet({address: 'mpSKAvSLeZTHbstNEzYKs7fxw9fat6a1Y1'}, function (err) {
       if (err)
         return done();
@@ -15,11 +15,11 @@ describe("bitcoin", function () {
     });
   });
 
-  it("should check balance for a valid a address", function (done) {
+  xit("should check balance for a valid a address", function (done) {
     engine.bitcoin.balance({wallet: {address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r'}}, done);
   });
 
-  it("should check balance every interval", function (done) {
+  xit("should check balance every interval", function (done) {
     var address = 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r';
     engine.listener.balances[address] = -100;
     engine.listener.add(address);

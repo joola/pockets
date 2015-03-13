@@ -1,4 +1,4 @@
-# Pockets [![Build Status](https://travis-ci.org/joola/pockets.svg)](https://travis-ci.org/joola/pockets) [![Coverage Status](https://coveralls.io/repos/joola/pockets/badge.svg)](https://coveralls.io/r/joola/pockets) [![Inline docs](http://inch-ci.org/github/joola/pockets.svg?branch=develop)](http://inch-ci.org/github/joola/pockets)
+# Pockets 
 
 >
 This is an experimental POC part of a demo presented in [Decentralize This hackaton](http://www.meetup.com/BTCHACKIL/events/220646630/).
