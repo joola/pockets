@@ -1,3 +1,7 @@
+/**
+ * The common config library provides the engine with capability to store and retrieve
+ * configuration values.
+ */
 var config = module.exports;
 
 /**

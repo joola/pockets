@@ -23,6 +23,8 @@ $ npm run build
 
 ### Running on your phone
 
+## How does it work?
+
 ## To do
 - Bug fixing and better testing
 - Support for using your existing wallet
