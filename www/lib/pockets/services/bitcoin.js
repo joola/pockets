@@ -36,6 +36,13 @@ bitcoin.validateWallet = function (options, callback) {
   return callback(new Error('Invalid wallet address [' + options.address + '].'))
 };
 
+/**
+ * Create a new wallet
+ * @param {object} options contains the options for creating a wallet
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
 bitcoin.createWallet = function (options, callback) {
   try {
     var key = _bitcoin.ECKey.makeRandom();
@@ -47,6 +54,14 @@ bitcoin.createWallet = function (options, callback) {
   }
 };
 
+/**
+ * Fetch a wallet balance
+ * @param {object} options contains the options for fetching balances
+ * - `wallet` holds the details of the wallet to check
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
 bitcoin.balance = function (options, callback) {
   var balance = null;
   var uri = 'https://test-insight.bitpay.com/api/addr/';
@@ -68,7 +83,12 @@ bitcoin.balance = function (options, callback) {
   });
 };
 
-
+/**
+ * Chooses the array of transactions to use as tx inputs
+ * @param {array} txs array of transactions holding id, amount, vout
+ * @param {number} totalamount the total amount to send
+ * @returns {Array} Array of valid txs to use as inputs
+ */
 bitcoin.choose_vouts = function (txs, totalamount) {
   var inplay = [];
   var inplayAmount = 0;
@@ -87,6 +107,16 @@ bitcoin.choose_vouts = function (txs, totalamount) {
   return inplay;
 };
 
+/**
+ * Build a new transaction
+ * @param {object} options object containing a transaction
+ * - `from` holds the source wallet
+ * - `to` holds the destination wallet
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 bitcoin.buildTransaction = function (options, callback) {
   options.tx = new _bitcoin.TransactionBuilder();
   var key = _bitcoin.ECKey.fromWIF(options.from.wallet.key);
@@ -113,6 +143,16 @@ bitcoin.buildTransaction = function (options, callback) {
   });
 };
 
+/**
+ * Send money from a pocket to pocket
+ * @param {object} options object containing a transaction
+ * - `from` holds the source pocket
+ * - `to` holds the destination pocket
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 bitcoin.handleTransaction = function (options, callback) {
   var transactions = options.transactions;
   //should be a complete transaction and handle it
@@ -162,7 +202,16 @@ bitcoin.handleTransaction = function (options, callback) {
   });
 };
 
-
+/**
+ * Send money from a pocket to a wallet
+ * @param {object} options object containing a transaction
+ * - `from` holds the source pocket
+ * - `to` holds the destination wallet
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 bitcoin.sendMoney = function (options, callback) {
   //should be a complete transaction and handle it
   engine.pockets.snapshot({}, function (err, snapshot) {
