@@ -30,48 +30,48 @@ angular.module('starter.controllers', [])
       parent: null,
       name: 'root',
       pockets: {
-        savings: {
+        Savings: {
           parent: 'root',
           name: 'Savings',
           hard_ratio: 0.33,
           color: '#8e44ad',
           pockets: {
-            house: {
+            House: {
               name: 'House',
               parent: 'savings',
               hard_ratio: 0.7
             },
-            tv: {
+            TV: {
               name: 'TV',
               parent: 'savings',
               hard_ratio: 0.3
             }
           }
         },
-        spending: {
+        Spending: {
           parent: 'root',
           name: 'Spending',
           hard_ratio: 0.333,
           color: '#2c3e50',
           pockets: {
-            'shopping': {
+            'Shopping': {
               parent: 'spending',
               name: 'shopping',
               hard_ratio: 0.4
             },
-            'cigarettes': {
+            'Cigarettes': {
               parent: 'spending',
               name: 'cigarettes',
               hard_ratio: 0.3
             },
-            rent: {
+            Rent: {
               parent: 'spending',
               name: 'Rent',
               hard_ratio: 0.3
             }
           }
         },
-        testing: {
+        Testing: {
           parent: 'root',
           color: '#cccccc',
           name: 'testing',
@@ -256,6 +256,9 @@ angular.module('starter.controllers', [])
         if (res) {
           engine.pockets.delete({name: pocketName}).then(function () {
 
+          }).error(function (err) {
+            if (err)
+              throw err;
           });
         }
       });
