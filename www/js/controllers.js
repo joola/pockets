@@ -113,7 +113,7 @@ angular.module('starter.controllers', [])
       }
 
       $scope.pockets = result;
-      console.log(result);
+      $scope.$digest();
     }).error(function (err) {
       if (err)
         throw err;
@@ -263,36 +263,32 @@ angular.module('starter.controllers', [])
         ]
       });
       myPopup.then(function (res) {
-
         engine.bitcoin.sendMoney({
-          transactions: [
-            {
-              from: {
-                name: $scope.pockets.name,
-                wallet: {
-                  address: $scope.pockets.wallet.address,
-                  key: $scope.pockets.wallet.key
-                }
-              },
-              to: {
-                name: 'test',
-                wallet: {
-                  address: $scope.data.toAddress
-                }
-              },
-              amount: $scope.data.amount
+          from: {
+            name: $scope.pockets.name,
+            wallet: {
+              address: $scope.pockets.wallet.address,
+              key: $scope.pockets.wallet.key
             }
-          ]
+          },
+          to: {
+            name: 'test',
+            wallet: {
+              address: $scope.data.toAddress
+            }
+          },
+          amount: $scope.data.amount
         }).then(function (result) {
           console.log(result);
         }).error(function (err) {
           console.log(err);
-        })
+        });
         console.log($scope.pockets.name, $scope.data.toAddress, $scope.data.amount);
       });
     };
   })
   .controller('DashCtrl', function ($scope) {
+
   })
 
   .controller('ChatsCtrl', function ($scope, Chats) {
