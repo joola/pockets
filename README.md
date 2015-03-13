@@ -25,4 +25,4 @@ $ npm run build
 
 Copyright (c) 2015 Joola Smart Solutions. MIT Licensed, see [LICENSE][license] for details.
 
-[license]: 
+[license]: https://github.com/joola/pockets/blob/develop/LICENSE.md

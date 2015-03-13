@@ -23,7 +23,7 @@ describe("bitcoin", function () {
     setTimeout(done, 2500);
   });
 
-  it("should send a bitcoin from ocket to pocket", function (done) {
+  it("should send a bitcoin from pocket to pocket", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
