@@ -235,7 +235,7 @@ angular.module('starter.controllers', [])
     });
     $scope.scanQR = function () {
       $cordovaBarcodeScanner.scan().then(function (imageData) {
-        $scope.toAddress = imageData.text;
+        $scope.data.toAddress = imageData.text;
       }, function (error) {
         console.log("An error happened -> " + error);
       });
@@ -247,18 +247,48 @@ angular.module('starter.controllers', [])
         '<span class="input-label">Amount</span>' +
         '<input ng-model="data.amount" type="number" placeholder="0.01">' +
         '</label>' +
-        '<br><div ng-click="scanQR()">Scan</div><br><button class="btn btn-danger">Send</button>',
+        '<label class="item item-input">' +
+        '<span class="input-label">To address</span>' +
+        '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
+        '</label>' +
+        '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>',
         title: 'Info',
         scope: $scope,
         buttons: [
+          {text: 'Cancel'},
           {
-            text: '<b>OK</b>',
+            text: '<b>Send!</b>',
             type: 'button-positive'
           }
         ]
       });
       myPopup.then(function (res) {
-        console.log($scope.pockets.name, $scope.toAddress, $scope.amount);
+
+        engine.bitcoin.handleTransaction({
+          transactions: [
+            {
+              from: {
+                name: $scope.pockets.name,
+                wallet: {
+                  address: $scope.pockets.wallet.address,
+                  key: $scope.pockets.wallet.key
+                }
+              },
+              to: {
+                name: 'test',
+                wallet: {
+                  address: $scope.data.toAddress
+                }
+              },
+              amount: $scope.data.amount
+            }
+          ]
+        }).then(function (result) {
+          console.log(result);
+        }).error(function (err) {
+          console.log(err);
+        })
+        console.log($scope.pockets.name, $scope.data.toAddress, $scope.data.amount);
       });
     };
   })
