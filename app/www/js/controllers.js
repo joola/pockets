@@ -30,56 +30,86 @@ angular.module('starter.controllers', [])
       parent: null,
       name: 'root',
       wallet: {
-        address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r',
-        key: 'cS15SvoeH6cwTL9mfZGK3dpEpCDprFq7K4b1zEeLV5CpxUf3wYFY'
+        address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+        key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+        balance: 0
       },
       pockets: {
         Savings: {
           parent: 'root',
           name: 'Savings',
-          hard_ratio: 0.33,
+          hard_ratio: 0.70,
           color: '#8e44ad',
           pockets: {
             House: {
               name: 'House',
               parent: 'savings',
-              hard_ratio: 0.7
+              hard_ratio: 0.7,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 147
+              }
             },
-            TV: {
-              name: 'TV',
+            Pension: {
+              name: 'Pension',
               parent: 'savings',
-              hard_ratio: 0.3
+              hard_ratio: 0.3,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 63
+              }
             }
           }
         },
         Spending: {
           parent: 'root',
           name: 'Spending',
-          hard_ratio: 0.333,
+          hard_ratio: 0.30,
           color: '#2c3e50',
           pockets: {
             'Shopping': {
               parent: 'spending',
               name: 'shopping',
-              hard_ratio: 0.4
+              hard_ratio: 0.25,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 22.5
+              }
             },
             'Cigarettes': {
               parent: 'spending',
               name: 'cigarettes',
-              hard_ratio: 0.3
+              hard_ratio: 0.25,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 22.5
+              }
             },
             Rent: {
               parent: 'spending',
               name: 'Rent',
-              hard_ratio: 0.3
+              hard_ratio: 0.25,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 22.5
+              }
+            },
+            gadgets: {
+              parent: 'spending',
+              name: 'gadgets',
+              hard_ratio: 0.25,
+              wallet: {
+                address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
+                key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
+                balance: 22.5
+              }
             }
           }
-        },
-        Testing: {
-          parent: 'root',
-          color: '#cccccc',
-          name: 'testing',
-          hard_ratio: 0.333
         }
       }
     };
