@@ -1,7 +1,7 @@
 # Pockets [![Build Status](https://travis-ci.org/joola/pockets.svg)](https://travis-ci.org/joola/pockets) [![Coverage Status](https://coveralls.io/repos/joola/pockets/badge.svg)](https://coveralls.io/r/joola/pockets) [![Inline docs](http://inch-ci.org/github/joola/pockets.svg?branch=develop)](http://inch-ci.org/github/joola/pockets)
 
 >
-This is an experimental POC
+This is an experimental POC part of a demo presented in [Decentralize This hackaton](http://www.meetup.com/BTCHACKIL/events/220646630/).
 
 Pockets is a Bitcoin based hierarchical wallet application offering advanced
 rule sets to manage relationships and balances.
@@ -23,6 +23,11 @@ $ npm run build
 
 ### Running on your phone
 
+## To do
+- Bug fixing and better testing
+- Support for using your existing wallet
+- Security and authentication mechanism
+- Backup/restore capability
 
 ## License
 
