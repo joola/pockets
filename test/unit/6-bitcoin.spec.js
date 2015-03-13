@@ -27,7 +27,7 @@ describe("bitcoin", function () {
     setTimeout(done, 2500);
   });
 
-  it("should send a bitcoin from pocket to pocket", function (done) {
+  xit("should send a bitcoin from pocket to pocket", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
@@ -74,7 +74,7 @@ describe("bitcoin", function () {
     });
   });
 
-  it("should send a bitcoin from pocket to wallet", function (done) {
+  xit("should send a bitcoin from pocket to wallet", function (done) {
     engine.pockets.create({
       parent: null,
       name: 'root',
