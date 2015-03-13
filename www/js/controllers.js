@@ -125,6 +125,80 @@ angular.module('starter.controllers', [])
       else
         $state.go('tab.pocket-details', {pocketName: pocketName});
     };
+
+    $scope.editPocket = function(pocketName) {
+      console.log(pocketName);
+      engine.pockets.get({name: pocketName}).then(function(result) {
+        $scope.result = result;
+        var myPopup = $ionicPopup.show({
+          template: '<div class="list">' +
+          '<label class="item item-input item-select">' +
+          '<span class="input-label">Parent</span>' +
+          '<select ng-model="result.parent">' +
+          '<option value="root">root</option>' +
+          '<option ng-repeat="(key, pocket) in result.pockets" value="{{result.name}}">{{pocket.name}}</option>' +
+          '</select>' +
+          '</label>' +
+          '<label class="item item-input">' +
+          '<span class="input-label">Pocket name</span>' +
+          '<input ng-model="result.name" type="text" placeholder="My new pocket">' +
+          '</label>' +
+          '<label class="item item-input">' +
+          '<span class="input-label">Ratio</span>' +
+          '<input ng-model="result.hard_ratio" type="number" placeholder="20">' +
+          '</label>' +
+          '<label class="item item-input">' +
+          '<span class="input-label">Color</span>' +
+          '<input ng-model="result.color" type="text" placeholder="#cccccc">' +
+          '</label>' +
+          '<label class="item item-input item-select">' +
+          '<span class="input-label">Importance</span>' +
+          '<select>' +
+          '<option value="low">Low</option>' +
+          '<option value="high">High</option>' +
+          '</select>' +
+          '</label>' +
+          '<label class="item item-input">' +
+          '<span class="input-label">Limit</span>' +
+          '<input ng-model="result.limit" type="number" placeholder="1">' +
+          '</label>' +
+          '</div>',
+          title: 'Add a new pocket',
+          scope: $scope,
+          buttons: [
+            {text: 'Cancel'},
+            {
+              text: '<b>Add</b>',
+              type: 'button-positive',
+              onTap: function (e) {
+                if (!$scope.result) {
+                  //don't allow the user to close unless he enters wifi password
+                  e.preventDefault();
+                } else {
+                  return $scope.result;
+                }
+              }
+            }
+          ]
+        });
+        myPopup.then(function (res) {
+          console.log(res);
+          /*
+          $scope.newpocket.hard_ratio = $scope.newpocket.hard_ratio / 100;
+          engine.pockets.create($scope.newpocket).then(function () {
+            //$state.go('')
+          }).error(function (err) {
+            if (err)
+              throw err;
+          });
+          */
+        });
+      }).error(function(err) {
+        if (err)
+          throw err;
+      });
+    };
+
     $scope.pocketHold = function (pocketName) {
       var myPopup = $ionicPopup.alert({
         template: "<div>Delete?</div>",
