@@ -264,7 +264,7 @@ angular.module('starter.controllers', [])
       });
       myPopup.then(function (res) {
 
-        engine.bitcoin.handleTransaction({
+        engine.bitcoin.sendMoney({
           transactions: [
             {
               from: {
