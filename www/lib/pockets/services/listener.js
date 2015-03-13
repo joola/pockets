@@ -1,3 +1,7 @@
+/**
+ * The listener module provides blockchain notifications when wallet balances are updates
+ * @type {*|exports}
+ */
 var
   io = require('socket.io-client'),
   async = require('async'),
@@ -5,17 +9,32 @@ var
 
 var listener = module.exports;
 
+// The interval to check balances
 listener.interval = 1000 * 10;
+//Holds array of address to inspect
 listener.addresses = [];
+//Stores the last address balance state
 listener.balances = {};
 
+/**
+ * Add a new address for monitoring
+ * @param {string} address bitcoin address to watch
+ */
 listener.add = function (address) {
   listener.addresses.push(address);
 };
 
+/**
+ * Removes an address from monitoring
+ * @param {string} address bitcoin address to watch
+ */
 listener.remove = function (address) {
   return listener.addresses.splice(listener.addresses.indexOf(address), 1);
 };
+
+/**
+ * This is the function that actually listens and monitors for wallet updates.
+ */
 listener.doInterval = function () {
   var uri = 'https://test-insight.bitpay.com/api/addr/';
   async.map(listener.addresses, function (address, cb) {
@@ -38,5 +57,6 @@ listener.doInterval = function () {
   });
 };
 
+//lift off
 setInterval(listener.doInterval, listener.interval);
 listener.doInterval();

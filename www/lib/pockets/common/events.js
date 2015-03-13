@@ -1,3 +1,7 @@
+/**
+ * The common Events library provide general events capabilities to the engine.
+ * @type {exports.EventEmitter2}
+ */
 var
   EventEmitter2 = require('eventemitter2').EventEmitter2;
 

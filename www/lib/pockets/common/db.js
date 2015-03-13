@@ -1,3 +1,6 @@
+/**
+ * The common DB is responsible for providing LocalStorage access to the engine
+ */
 var db = module.exports;
 if (typeof global.localStorage === 'undefined') {
   var LocalStorage = require('node-localstorage').LocalStorage;

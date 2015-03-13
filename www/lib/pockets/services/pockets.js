@@ -1,11 +1,22 @@
+/**
+ * Provides the engine with pocket logic and functionality
+ */
 var
   async = require('async'),
   traverse = require('traverse');
 
 var pockets = module.exports;
 
+//Holds the entire pockets collection
 pockets.ROOT = null;
 
+/**
+ * Lists all pockets
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.list = function (options, callback) {
   callback = callback || function () {
   };
@@ -42,6 +53,12 @@ pockets.list = function (options, callback) {
   });
 };
 
+/**
+ * Create a new pocket
+ * @param {object} options object containing the pocket to add
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result */
 pockets.create = function (options, callback) {
   callback = callback || function () {
   };
@@ -89,6 +106,14 @@ pockets.create = function (options, callback) {
   }
 };
 
+/**
+ * Get a pocket
+ * @param {object} options object containing options for get pocket
+ * - `name` the name of the pocket to fetch
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.get = function (options, callback) {
   callback = callback || function () {
   };
@@ -125,6 +150,12 @@ pockets.get = function (options, callback) {
     return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
 };
 
+/**
+ * Updates a pocket
+ * @param {object} options object containing options for update
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result */
 pockets.update = function (options, callback) {
   callback = callback || function () {
   };
@@ -138,6 +169,13 @@ pockets.update = function (options, callback) {
   });
 };
 
+/**
+ * Delete a pocket
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.delete = function (options, callback) {
   callback = callback || function () {
   };
@@ -192,7 +230,14 @@ pockets.delete = function (options, callback) {
     return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
 };
 
-
+/**
+ * Validate a pocket
+ * @param {object} options object containing options for validate
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ * @returns {*}
+ */
 pockets.validate = function (options, callback) {
   callback = callback || function () {
   };
@@ -200,6 +245,13 @@ pockets.validate = function (options, callback) {
   return engine.bitcoin.validate({address: options.wallet.address}, callback);
 };
 
+/**
+ * Saves the pockets collection to LocalStorage
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.save = function (options, callback) {
   callback = callback || function () {
   };
@@ -216,6 +268,13 @@ pockets.save = function (options, callback) {
   });
 };
 
+/**
+ * Loads the pocket collection from LocalStorage
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
 pockets.load = function (options, callback) {
   pockets.ROOT = engine.db.get('pockets.json');
   return callback(null);
