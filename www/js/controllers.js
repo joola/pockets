@@ -124,6 +124,29 @@ angular.module('starter.controllers', [])
       else
         $state.go('tab.pocket-details', {pocketName: pocketName});
     };
+    $scope.pocketHold = function(pocketName) {
+      var myPopup = $ionicPopup.alert({
+        template: "<div>Delete?</div>",
+        scope: $scope,
+        buttons: [
+          {text: 'Cancel'},
+          {
+            text: '<b>Delete</b>',
+            type: 'button-positive',
+            onTap: function() {
+              return true
+            }
+          }
+        ]
+      });
+      myPopup.then(function(res) {
+        if (res) {
+          engine.pockets.delete({name: pocketName}).then(function() {
+
+          });
+        }
+      });
+    };
     $scope.addPocket = function () {
       $scope.newpocket = {};
       var myPopup = $ionicPopup.show({
@@ -186,10 +209,25 @@ angular.module('starter.controllers', [])
             throw err;
         });
       });
-    }
+    };
+    $scope.rootInfo = function () {
+      var myPopup = $ionicPopup.show({
+        template: '<div>QR</div>',
+        title: 'Info',
+        scope: $scope,
+        buttons: [
+          {
+            text: '<b>OK</b>',
+            type: 'button-positive'
+          }
+        ]
+      });
+      myPopup.then(function (res) {
+
+      });
+    };
   })
   .controller('pocketDetailsCtrl', function ($scope, $state, $stateParams) {
-    $
 
   })
   .controller('DashCtrl', function ($scope) {

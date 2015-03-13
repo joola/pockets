@@ -48,7 +48,12 @@
 .btn-addpocket {
   background-color: #dd4b39;
   border-color: #d43f3a;
+}
 
+.btn-rootinfo {
+  background-color:#ecf0f1;
+  border-color:#f2f2f2;
+  color:#222;
 }
 
 .btn-addpocket:hover, .btn-addpocket:focus, .btn-addpocket:active {
