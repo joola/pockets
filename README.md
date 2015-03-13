@@ -18,10 +18,27 @@ $ npm run build
 ```
 
 ### Running using emulator
+We used [ionic](http://ionicframework.com/) as the framework for building the Pockets app. In order to use the emulator, please follow these steps after you clone the repository.
+
+```bash
+$ npm install -g cordova ionic
+$ ionic platform add ios
+$ ionic build ios
+$ ionic emulate ios
+```
 
 ### Running from the browser
 
+Since Pockets is a client-side only application/system, this means you can load the entire thing within your browser.
+Navigate to `file:///<where-you-installed>/pockets/app/www/index.html`
+
+You should be able to start the Start page.
+
 ### Running on your phone
+
+To deploy the application to your phone simply download and install the `apk` from `platforms/android/ant-build/pockets.apk`.
+
+The application should now be available in your phone menu.
 
 ## How does it work?
 
@@ -33,14 +50,14 @@ Pockets uses a simple JSON structure to describe the pocket collection and the r
   pockets: {
     savings: {
       name: 'savings',
-      level_ratio: 0.5,
+      level_ratio: 0.5, //limit pension to 50% of the level
       pockets: {
         house: {
           name: 'house'
         },
         pension: {
           name: 'pension',
-          level_ratio: 0.7
+          level_ratio: 0.7 //limit pension to 70% of the level
         }
       }
     },
@@ -49,7 +66,7 @@ Pockets uses a simple JSON structure to describe the pocket collection and the r
       pockets: {
         rent: {
           name: 'rent',
-          limit: 2.5
+          limit: 2.5 //limit rent to 2.5 btc
         },
         food: {
           name: 'food',
