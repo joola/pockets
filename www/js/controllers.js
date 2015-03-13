@@ -113,6 +113,7 @@ angular.module('starter.controllers', [])
       }
 
       $scope.pockets = result;
+      console.log(result);
     }).error(function (err) {
       if (err)
         throw err;
@@ -124,7 +125,7 @@ angular.module('starter.controllers', [])
       else
         $state.go('tab.pocket-details', {pocketName: pocketName});
     };
-    $scope.pocketHold = function(pocketName) {
+    $scope.pocketHold = function (pocketName) {
       var myPopup = $ionicPopup.alert({
         template: "<div>Delete?</div>",
         scope: $scope,
@@ -133,15 +134,15 @@ angular.module('starter.controllers', [])
           {
             text: '<b>Delete</b>',
             type: 'button-positive',
-            onTap: function() {
+            onTap: function () {
               return true
             }
           }
         ]
       });
-      myPopup.then(function(res) {
+      myPopup.then(function (res) {
         if (res) {
-          engine.pockets.delete({name: pocketName}).then(function() {
+          engine.pockets.delete({name: pocketName}).then(function () {
 
           });
         }
@@ -227,8 +228,39 @@ angular.module('starter.controllers', [])
       });
     };
   })
-  .controller('pocketDetailsCtrl', function ($scope, $state, $stateParams) {
-
+  .controller('pocketDetailsCtrl', function ($scope, $state, $ionicPopup, $stateParams, $cordovaBarcodeScanner) {
+    engine.pockets.get({name: $stateParams.pocketName}).then(function (result) {
+      $scope.pockets = result;
+      $scope.$digest();
+    });
+    $scope.scanQR = function () {
+      $cordovaBarcodeScanner.scan().then(function (imageData) {
+        $scope.toAddress = imageData.text;
+      }, function (error) {
+        console.log("An error happened -> " + error);
+      });
+    };
+    $scope.spendDialog = function () {
+      $scope.data = {};
+      var myPopup = $ionicPopup.show({
+        template: '<label class="item item-input">' +
+        '<span class="input-label">Amount</span>' +
+        '<input ng-model="data.amount" type="number" placeholder="0.01">' +
+        '</label>' +
+        '<br><div ng-click="scanQR()">Scan</div><br><button class="btn btn-danger">Send</button>',
+        title: 'Info',
+        scope: $scope,
+        buttons: [
+          {
+            text: '<b>OK</b>',
+            type: 'button-positive'
+          }
+        ]
+      });
+      myPopup.then(function (res) {
+        console.log($scope.pockets.name, $scope.toAddress, $scope.amount);
+      });
+    };
   })
   .controller('DashCtrl', function ($scope) {
   })

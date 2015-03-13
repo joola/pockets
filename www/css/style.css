@@ -75,3 +75,7 @@
 .children {
   display: inline-block;
 }
+
+#qrcode img {
+  margin:0 auto;
+}
