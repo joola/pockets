@@ -351,13 +351,15 @@ angular.module('starter.controllers', [])
         ]
       });
       myPopup.then(function (res) {
-        $scope.newpocket.hard_ratio = $scope.newpocket.hard_ratio / 100;
-        engine.pockets.create($scope.newpocket).then(function () {
-          //$state.go('')
-        }).error(function (err) {
-          if (err)
-            throw err;
-        });
+        if (res) {
+          $scope.newpocket.hard_ratio = $scope.newpocket.hard_ratio / 100;
+          engine.pockets.create($scope.newpocket).then(function () {
+            //$state.go('')
+          }).error(function (err) {
+            if (err)
+              throw err;
+          });
+        }
       });
     };
     $scope.rootInfo = function () {
