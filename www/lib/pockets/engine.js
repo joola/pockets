@@ -28,7 +28,8 @@ engine.init = function (options, callback) {
 
   engine.options = engine.common.extend({
     //default options
-    promisify: false
+    promisify: false,
+    mock: process.env.MOCK || false
   }, options || {});
   if (engine.options.promisify)
     engine.promisify();

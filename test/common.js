@@ -9,6 +9,7 @@ global.expect = chai.expect;
 
 require('../www/lib/pockets/engine');
 
+process.env.MOCK = true;
 engine.init();
 
 global.common = exports;

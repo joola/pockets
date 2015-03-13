@@ -155,7 +155,7 @@ bitcoin.handleTransaction = function (options, callback) {
         return callback(err);
       engine.pockets.snapshot({}, function (err, snapshot) {
         console.log('after snapshot', snapshot);
-        engine.emit('wallet-update');
+        engine.events.emit('wallet-update');
         return callback(null, options);
       });
     });
