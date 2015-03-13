@@ -1,7 +1,8 @@
 describe("bitcoin", function () {
   before(function () {
-    process.env.MOCK = false;
+    engine.options.mock = false;
   });
+
   it("should validate a address", function (done) {
     engine.bitcoin.validateWallet({address: 'mpSKAvSLeZTHbstNEzYKs7fxw9fat6a1Y5'}, done);
   });
@@ -115,7 +116,8 @@ describe("bitcoin", function () {
       }, done)
     });
   });
+
   after(function () {
-    process.env.MOCK = true;
+    engine.options.mock = true;
   });
 });

@@ -10,7 +10,7 @@ global.expect = chai.expect;
 require('../www/lib/pockets/engine');
 process.env.MOCK = true;
 engine.init();
-engine.listener.interval=1000;
+engine.listener.interval = 1000;
 
 global.common = exports;
 
