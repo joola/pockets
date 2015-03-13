@@ -1,6 +1,7 @@
-<ion-view view-title="{{pocketName}}">
+<ion-view view-title="{{pockets.name}}">
   <ion-content class="padding">
-    <div style="text-align:center;padding-top:50px;">
+    <br><div style="text-align:center;"><h3>{{pockets.wallet.balance}} BTC</h3></div>
+    <div style="text-align:center;">
       <qrcode></qrcode><br>
       <button class="btn btn-lg btn-danger button-positive" ng-click="spendDialog()">SPEND</button>
     </div>

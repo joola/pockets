@@ -14,10 +14,20 @@
       </div>
     </div>
   </ion-content>
-  <div style="position:absolute;top:50px; right: 8px;">
-    <button type="button" ng-click="rootInfo()" class="btn btn-primary btn-rootinfo btn-circle btn-lg"><i
-      class="fa fa-info"></i></button>
+  <div ng-if="pockets.name == 'root'">
+    <div style="position:absolute;top:50px; right: 8px;">
+      <button type="button" ng-click="rootInfo()" class="btn btn-primary btn-rootinfo btn-circle btn-lg"><i
+        class="fa fa-info"></i></button>
+    </div>
   </div>
+
+  <div ng-if="pockets.name != 'root'">
+    <div style="position:absolute;top:50px; right: 8px;">
+      <button type="button" ng-click="editPocket('{{pockets.name}}')" class="btn btn-primary btn-rootinfo btn-circle btn-lg"><i
+        class="fa fa-pencil"></i></button>
+    </div>
+  </div>
+
   <div style="position:absolute;bottom:8px; right: 8px;">
     <button type="button" ng-click="addPocket()" class="btn btn-primary btn-addpocket btn-circle btn-lg"><i
       class="fa fa-plus"></i></button>
