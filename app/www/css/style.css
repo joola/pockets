@@ -8,14 +8,15 @@
 }
 
 .pocket-title {
-  font-size: 38px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 400;
   position: absolute;
-  left: 0;
+  left: 10px;
   right: 0;
-  text-align: center;
+  top:20px;
   width: 100%;
-  top: 42%
+  text-transform: uppercase;
+  color: white;
 }
 
 .pocket-content {
@@ -74,6 +75,11 @@
 
 .children {
   display: inline-block;
+  border-right: 1px solid #fff;
+}
+
+.children:last-child {
+  border-right: 0;
 }
 
 #qrcode img {
@@ -83,3 +89,4 @@
 body {
   font-family: 'PT Sans', 'Open Sans', 'Droid Sans', "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
 }
+

@@ -24,9 +24,9 @@ engine.init = function (options, callback) {
   engine.events = require('./common/events');
 
   //services
+  engine.listener = require('./services/listener');
   engine.bitcoin = require('./services/bitcoin');
   engine.pockets = require('./services/pockets');
-  engine.listener = require('./services/listener');
 
   engine.options = engine.common.extend({
     //default options
@@ -40,17 +40,20 @@ engine.init = function (options, callback) {
   engine.pockets.load({}, function (err) {
     if (err)
       return callback(err);
+    engine.pockets.list({}, function (err) {
+      if (err)
+        return callback(err);
+      var fn = function () {
+        console.log('Wallets updated');
+        engine.pockets.realign({});
+      };
+      engine.events.on('wallet-update', fn);
+      engine.events.on('equilibrium', function () {
+        console.log('Equilibrium reached!');
+      });
 
-    var fn = function () {
-      console.log('Wallets updated');
-      engine.pockets.realign({});
-    };
-    engine.events.on('wallet-update', fn);
-    engine.events.on('equilibrium', function () {
-      console.log('Equilibrium reached!');
+      return callback(null);
     });
-
-    return callback(null);
   });
 };
 
@@ -264,9 +267,14 @@ bitcoin.createWallet = function (options, callback) {
  *  - `result` true/false indicating if the wallet is valid.
  */
 bitcoin.balance = function (options, callback) {
+  if (!options || (options && !options.wallet) || (options.wallet && !options.wallet.address))
+    return callback(null, 0);
   var balance = null;
   var uri = 'https://test-insight.bitpay.com/api/addr/';
   uri += options.wallet.address;
+
+  engine.listener.add(options.wallet.address);
+  console.log('check balance', uri);
   request.get(uri, function (err, headers, body) {
     if (err)
       return callback(err);
@@ -275,6 +283,7 @@ bitcoin.balance = function (options, callback) {
     try {
       var details = JSON.parse(body);
       balance = details.balance + details.unconfirmedBalance;
+      console.log('check balance done', balance);
     }
     catch (ex) {
       return callback(ex);
@@ -475,7 +484,13 @@ listener.balances = {};
  * @param {string} address bitcoin address to watch
  */
 listener.add = function (address) {
-  listener.addresses.push(address);
+  if (address==='')
+  {
+    console.trace();
+    throw 'fuck!'
+  }
+  if (listener.addresses.indexOf(address) === -1)
+    listener.addresses.push(address);
 };
 
 /**
@@ -491,8 +506,10 @@ listener.remove = function (address) {
  */
 listener.doInterval = function () {
   var uri = 'https://test-insight.bitpay.com/api/addr/';
+
   async.map(listener.addresses, function (address, cb) {
     var _uri = uri + address;
+    console.log('interval', _uri);
     request.get(_uri, function (err, headers, body) {
       if (err)
         return cb(err);
@@ -562,10 +579,12 @@ pockets.list = function (options, callback) {
   async.series(calls, function (err) {
     if (err)
       return callback(err);
+    console.log('root', pockets.ROOT);
     engine.bitcoin.balance(pockets.ROOT, function (err, balance) {
       if (err)
         return callback(err);
-      pockets.ROOT.wallet.balance = balance;
+      if (pockets.ROOT && pockets.ROOT.wallet)
+        pockets.ROOT.wallet.balance = balance;
       return callback(null, pockets.ROOT);
     });
 
@@ -594,10 +613,14 @@ pockets.create = function (options, callback) {
           engine.bitcoin.createWallet({}, function (err, result) {
             if (err)
               return callback(err);
-            x.wallet = x.wallet || result;
-            point.update(x);
-            engine.listener.add(x.wallet.address);
-            return cb(null, result);
+            engine.bitcoin.balance(x, function (err, result) {
+              if (err)
+                return callback(err);
+              x.wallet = x.wallet || result;
+              point.update(x);
+              engine.listener.add(x.wallet.address);
+              return cb(null, result);
+            });
           });
         };
         calls.push(fn);
@@ -605,6 +628,7 @@ pockets.create = function (options, callback) {
     });
     async.series(calls, function (err, results) {
       pockets.ROOT = options;
+      engine.listener.add(pockets.ROOT.wallet.address);
       return pockets.save({}, callback);
     });
   }
@@ -617,7 +641,8 @@ pockets.create = function (options, callback) {
       engine.bitcoin.createWallet({}, function (err, result) {
         if (err)
           return callback(err);
-        options.wallet = result;
+        options.wallet = options.wallet || result;
+        engine.listener.add(options.wallet.address);
         parent.pockets[options.name] = options;
         return pockets.save({}, callback);
       });
@@ -652,8 +677,15 @@ pockets.get = function (options, callback) {
       return found;
   };
 
-  if (pockets.ROOT.name === options.name)
-    return callback(null, pockets.ROOT);
+  if (pockets.ROOT.name === options.name) {
+    engine.bitcoin.balance(pockets.ROOT, function (err, balance) {
+      if (err)
+        return callback(err);
+      pockets.ROOT.wallet.balance = balance;
+      engine.listener.add(pockets.ROOT.wallet.address);
+      return callback(null, pockets.ROOT);
+    });
+  }
   var found = recurse(pockets.ROOT, options.name);
   if (found) {
     if (options.mock)
@@ -662,6 +694,8 @@ pockets.get = function (options, callback) {
       if (err)
         return callback(err);
       found.wallet.balance = balance;
+      console.log('add5');
+      engine.listener.add(found.wallet.address);
       return callback(null, found);
     });
   }
@@ -713,13 +747,13 @@ pockets.delete = function (options, callback) {
       return found;
   };
 
-  if (pockets.ROOT[options.name] === options.name)
+  if (pockets.ROOT.name === options.name)
     return callback(null, pockets.ROOT = {});
 
   var found = recurse(pockets.ROOT, options.name);
   if (found) {
     pockets.get({name: 'root'}, function (err, rootPocket) {
-      if (!found.wallet.balance){
+      if (!found.wallet.balance) {
         engine.listener.remove(found.wallet.address);
         return pockets.save({}, callback);
       }
@@ -795,7 +829,9 @@ pockets.save = function (options, callback) {
  * - `result` the function result
  */
 pockets.load = function (options, callback) {
+  console.log('load');
   pockets.ROOT = engine.db.get('pockets.json');
+  console.log(pockets.ROOT);
   return callback(null);
 };
 
@@ -1127,6 +1163,12 @@ pockets.getSavings = function () {
   });
   return found;
 };
+
+pockets.load({}, function () {
+  pockets.list({}, function () {
+
+  });
+});
 },{"async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","traverse":"/home/itay/dev/pockets/node_modules/traverse/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //

@@ -29,6 +29,10 @@ angular.module('starter.controllers', [])
     var student = {
       parent: null,
       name: 'root',
+      wallet: {
+        address: 'mqoVHUCZGneDUy7Z7mNCdqPmHSTUXicG8r',
+        key: 'cS15SvoeH6cwTL9mfZGK3dpEpCDprFq7K4b1zEeLV5CpxUf3wYFY'
+      },
       pockets: {
         Savings: {
           parent: 'root',
