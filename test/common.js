@@ -7,7 +7,7 @@ var chai = require('chai');
 chai.use(require('sinon-chai'));
 global.expect = chai.expect;
 
-require('../www/lib/pockets/engine');
+require('../lib/engine');
 process.env.MOCK = true;
 engine.init();
 engine.listener.interval = 1000;

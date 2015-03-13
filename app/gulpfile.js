@@ -14,7 +14,7 @@ var watchify = require('watchify');
 var browserify = require('browserify');
 
 var paths = {
-  pockets_lib_index: './www/lib/pockets/engine.js',
+  pockets_lib_index: '../lib/engine.js',
   sass: ['./scss/**/*.scss']
 };
 

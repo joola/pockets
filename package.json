@@ -6,7 +6,7 @@
     "test": "mocha",
     "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "build": "gulp build"
+    "build": "cd app && gulp build"
   },
   "dependencies": {
     "async": "^0.9.0",

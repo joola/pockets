@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./www/lib/pockets/engine.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"../lib/engine.js":[function(require,module,exports){
 (function (process,global){
 /**
  * The main entry point for Pockets
@@ -7,7 +7,7 @@
 //Stores reference (including global) to the engine\
 var engine = global.engine = {};
 
-engine.VERSION = require('../../../package.json').version;
+engine.VERSION = require('../package.json').version;
 
 /**
  * Initialize the engine
@@ -77,7 +77,1057 @@ require('./common/globals');
 if (typeof global.localStorage !== 'undefined')
   engine.init({promisify: true});
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../../../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/www/lib/pockets/common/config.js","./common/db":"/home/itay/dev/pockets/www/lib/pockets/common/db.js","./common/events":"/home/itay/dev/pockets/www/lib/pockets/common/events.js","./common/globals":"/home/itay/dev/pockets/www/lib/pockets/common/globals.js","./common/index":"/home/itay/dev/pockets/www/lib/pockets/common/index.js","./common/logger":"/home/itay/dev/pockets/www/lib/pockets/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js","./services/listener":"/home/itay/dev/pockets/www/lib/pockets/services/listener.js","./services/pockets":"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js","_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
+},{"../package.json":"/home/itay/dev/pockets/package.json","./common/config":"/home/itay/dev/pockets/lib/common/config.js","./common/db":"/home/itay/dev/pockets/lib/common/db.js","./common/events":"/home/itay/dev/pockets/lib/common/events.js","./common/globals":"/home/itay/dev/pockets/lib/common/globals.js","./common/index":"/home/itay/dev/pockets/lib/common/index.js","./common/logger":"/home/itay/dev/pockets/lib/common/logger.js","./services/bitcoin":"/home/itay/dev/pockets/lib/services/bitcoin.js","./services/listener":"/home/itay/dev/pockets/lib/services/listener.js","./services/pockets":"/home/itay/dev/pockets/lib/services/pockets.js","_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","thenify-all":"/home/itay/dev/pockets/node_modules/thenify-all/index.js"}],"/home/itay/dev/pockets/lib/common/config.js":[function(require,module,exports){
+/**
+ * The common config library provides the engine with capability to store and retrieve
+ * configuration values.
+ */
+var config = module.exports;
+
+/**
+ * Retrieve a configuration value by key
+ * @param {string} key the name of the configuration key to retrieve
+ * @returns {*} the configuration value stored for the key
+ */
+config.get = function (
+  key) {
+  return engine.db.get(key);
+};
+
+/**
+ * Store a configuration value by key
+ * @param {string} key the name of the configuration key to store
+ * @param {*} value the configuration value to store
+ */
+config.set = function (key, value) {
+  return engine.db.set(key, value);
+};
+},{}],"/home/itay/dev/pockets/lib/common/db.js":[function(require,module,exports){
+(function (global){
+/**
+ * The common DB is responsible for providing LocalStorage access to the engine
+ */
+var db = module.exports;
+if (typeof global.localStorage === 'undefined') {
+  var LocalStorage = require('node-localstorage').LocalStorage;
+  db._localStorage = new LocalStorage('./scratch');
+}
+else
+  db._localStorage = global.localStorage;
+
+/**
+ * Retrieve a db value by key
+ * @param {string} key the name of the db key to retrieve
+ * @returns {*} the db value stored for the key
+ */
+db.get = function (key) {
+  var result;
+  result = db._localStorage.getItem(key);
+  try {
+    result = JSON.parse(result);
+  }
+  catch (ex) {
+
+  }
+  return result;
+};
+
+/**
+ * Store a database value by key
+ * @param {string} key the name of the db key to store
+ * @param {*} value the db value to store
+ */
+db.set = function (key, value) {
+  if (typeof value === 'object')
+    value = JSON.stringify(value);
+  return db._localStorage.setItem(key, value);
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"node-localstorage":"/home/itay/dev/pockets/node_modules/node-localstorage/LocalStorage.js"}],"/home/itay/dev/pockets/lib/common/events.js":[function(require,module,exports){
+/**
+ * The common Events library provide general events capabilities to the engine.
+ * @type {exports.EventEmitter2}
+ */
+var
+  EventEmitter2 = require('eventemitter2').EventEmitter2;
+
+var _events = new EventEmitter2({wildcard: true, newListener: true});
+
+module.exports = exports = _events;
+},{"eventemitter2":"/home/itay/dev/pockets/node_modules/eventemitter2/lib/eventemitter2.js"}],"/home/itay/dev/pockets/lib/common/globals.js":[function(require,module,exports){
+(function (global){
+/**
+ * The common Global library store all global functions.
+ */
+global.emptyfunc = function () {
+
+};
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],"/home/itay/dev/pockets/lib/common/index.js":[function(require,module,exports){
+/**
+ * Holds general common functions to be used across the engine
+ */
+var util = require('util');
+
+var common = module.exports;
+
+common.extend = util._extend;
+
+/**
+ * Inspects an object passed
+ * @param {options} obj object to be inspected
+ */
+common.inspect = function (obj) {
+  console.log(util.inspect(obj, {depth: null, colors: true}));
+};
+},{"util":"/home/itay/dev/pockets/node_modules/browserify/node_modules/util/util.js"}],"/home/itay/dev/pockets/lib/common/logger.js":[function(require,module,exports){
+/**
+ * Common logger functionality
+ */
+var logger = module.exports;
+
+/**
+ * We stub console log based on pre-defined levels.
+ * This is useful is we wish to attach additional logging outputs
+ *  set logging levels or present output differently based on levels.
+ */
+['silly', 'trace', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
+  logger[level] = function (msg) {
+    if (console[level])
+      console[level](msg);
+  }
+});
+},{}],"/home/itay/dev/pockets/lib/services/bitcoin.js":[function(require,module,exports){
+(function (process){
+/**
+ * Bitcoin services for pockets.
+ */
+
+var
+  _bitcoin = require('bitcoinjs-lib'),
+  base58 = require('bs58'),
+  ecurve = require('ecurve'),
+  BigInteger = require('bigi'),
+  Buffer = require('buffer'),
+  async = require('async'),
+  _ = require('underscore'),
+  request = process.browser ? require('browser-request') : require('request');
+
+var bitcoin = module.exports;
+
+/**
+ * Validates a wallet address
+ * @param {object} options contains the `address` attribute
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
+bitcoin.validateWallet = function (options, callback) {
+  function isAddress(string) {
+    try {
+      _bitcoin.Address.fromBase58Check(string);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  if (isAddress(options.address))
+    return callback(null);
+  return callback(new Error('Invalid wallet address [' + options.address + '].'))
+};
+
+/**
+ * Create a new wallet
+ * @param {object} options contains the options for creating a wallet
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
+bitcoin.createWallet = function (options, callback) {
+  try {
+    var key = _bitcoin.ECKey.makeRandom();
+    var address = key.pub.getAddress(_bitcoin.networks.testnet).toString();
+    return callback(null, {key: key.toWIF(_bitcoin.networks.testnet), address: address});
+  }
+  catch (ex) {
+    return callback(ex);
+  }
+};
+
+/**
+ * Fetch a wallet balance
+ * @param {object} options contains the options for fetching balances
+ * - `wallet` holds the details of the wallet to check
+ * @param {function} callback the callback function to run on done
+ *  - `err` holds the error (if any occured)
+ *  - `result` true/false indicating if the wallet is valid.
+ */
+bitcoin.balance = function (options, callback) {
+  var balance = null;
+  var uri = 'https://test-insight.bitpay.com/api/addr/';
+  uri += options.wallet.address;
+  request.get(uri, function (err, headers, body) {
+    if (err)
+      return callback(err);
+    if (headers.statusCode !== 200)
+      return callback(new Error('Failed to get address balance.'));
+    try {
+      var details = JSON.parse(body);
+      balance = details.balance + details.unconfirmedBalance;
+    }
+    catch (ex) {
+      return callback(ex);
+    }
+
+    return callback(null, balance);
+  });
+};
+
+/**
+ * Chooses the array of transactions to use as tx inputs
+ * @param {array} txs array of transactions holding id, amount, vout
+ * @param {number} totalamount the total amount to send
+ * @returns {Array} Array of valid txs to use as inputs
+ */
+bitcoin.choose_vouts = function (txs, totalamount) {
+  var inplay = [];
+  var inplayAmount = 0;
+  var change = [];
+
+  var sorted = _.sortBy(txs, function (x) {
+    return x.amount;
+  });
+
+  sorted.forEach(function (tx) {
+    if (inplayAmount < totalamount) {
+      inplay.push(tx);
+      inplayAmount += tx.amount;
+    }
+  });
+  return inplay;
+};
+
+/**
+ * Build a new transaction
+ * @param {object} options object containing a transaction
+ * - `from` holds the source wallet
+ * - `to` holds the destination wallet
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+bitcoin.buildTransaction = function (options, callback) {
+  options.tx = new _bitcoin.TransactionBuilder();
+  var key = _bitcoin.ECKey.fromWIF(options.from.wallet.key);
+  var uri = 'https://test-insight.bitpay.com/api/addr/';
+  uri += options.from.wallet.address + '/utxo';
+  console.log('fetching utxo ', uri);
+  request.get(uri, function (err, headers, body) {
+    if (err)
+      return callback(err);
+    if (headers.statusCode !== 200)
+      return callback(new Error('Failed to get address balance.'));
+    var details = JSON.parse(body);
+    options.vouts = bitcoin.choose_vouts(details, options.amount);
+    options.vouts.forEach(function (vout, i) {
+      console.log('adding vout for wallet [' + options.from.wallet.address + '], ', vout.txid, vout.vout);
+      options.tx.addInput(vout.txid, vout.vout)
+    });
+    options.tx.addOutput(options.to.wallet.address, options.amount * 100000000);
+    options.vouts.forEach(function (vout, i) {
+      options.tx.sign(i, key);
+    });
+    options.toHex = options.tx.build().toHex();
+    return callback(null, options.toHex);
+  });
+};
+
+/**
+ * Send money from a pocket to pocket
+ * @param {object} options object containing a transaction
+ * - `from` holds the source pocket
+ * - `to` holds the destination pocket
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+bitcoin.handleTransaction = function (options, callback) {
+  var transactions = options.transactions;
+  //should be a complete transaction and handle it
+  engine.pockets.snapshot({}, function (err, snapshot) {
+    //console.log('before snapshot', snapshot);
+    //mock up, update balances and trigger event.
+    async.map(transactions, function (transaction, cb) {
+      var amount = transaction.amount;
+      engine.pockets.get({name: transaction.from.name, mock: true}, function (err, fromPocket) {
+        engine.pockets.get({name: transaction.to.name, mock: true}, function (err, toPocket) {
+          if (err)
+            return cb(err);
+
+          if (fromPocket)
+            fromPocket.wallet.balance = fromPocket.wallet.balance - Math.abs(amount);
+          toPocket.wallet.balance = toPocket.wallet.balance + Math.abs(amount);
+          console.log('[' + transaction.from.name + '] --> [' + transaction.to.name + ']', Math.abs(amount));
+          //console.log('Updating wallet [' + transaction.to.name + '] adding ' + amount);
+
+          if (options.mock || engine.options.mock)
+            return cb(null);
+
+          bitcoin.buildTransaction(transaction, function (err, tx_hex) {
+            if (err)
+              return cb(err);
+
+            var uri = 'https://test-insight.bitpay.com/api/tx/send';
+            request.post(uri, {form: {rawtx: tx_hex}}, function (err, headers, body) {
+              if (err)
+                return cb(err);
+              if (headers.statusCode !== 200)
+                return cb(new Error('Failed to send transaction.'));
+              return cb();
+            });
+          });
+        });
+      });
+    }, function (err, results) {
+      if (err)
+        return callback(err);
+      engine.pockets.snapshot({}, function (err, snapshot) {
+        console.log('after snapshot', snapshot);
+        engine.events.emit('wallet-update');
+        return callback(null, options);
+      });
+    });
+  });
+};
+
+/**
+ * Send money from a pocket to a wallet
+ * @param {object} options object containing a transaction
+ * - `from` holds the source pocket
+ * - `to` holds the destination wallet
+ * - `amount` the amount to send
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+bitcoin.sendMoney = function (options, callback) {
+  //should be a complete transaction and handle it
+  engine.pockets.snapshot({}, function (err, snapshot) {
+    //console.log('before snapshot', snapshot);
+    //mock up, update balances and trigger event.
+    var amount = options.amount;
+    engine.pockets.get({name: options.from.name, mock: true}, function (err, fromPocket) {
+      if (fromPocket)
+        fromPocket.wallet.balance = fromPocket.wallet.balance - Math.abs(amount);
+      options.to.wallet.balance = options.to.wallet.balance + Math.abs(amount);
+      console.log('[' + options.from.name + '] --> [' + options.to.name + ']', Math.abs(amount));
+      //console.log('Updating wallet [' + transaction.to.name + '] adding ' + amount);
+
+      if (options.mock || engine.options.mock) {
+        return callback(null);
+      }
+
+      bitcoin.buildTransaction(options, function (err, tx_hex) {
+        if (err)
+          return callback(err);
+        var uri = 'https://test-insight.bitpay.com/api/tx/send';
+        request.post(uri, {form: {rawtx: tx_hex}}, function (err, headers, body) {
+          if (err)
+            return callback(err);
+          if (headers.statusCode !== 200)
+            return callback(new Error('Failed to send transaction.'));
+          engine.pockets.snapshot({}, function (err, snapshot) {
+            console.log('after snapshot', snapshot);
+            engine.events.emit('wallet-update');
+            return callback(null, options);
+          });
+        });
+      });
+    });
+  });
+};
+}).call(this,require('_process'))
+},{"_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","bigi":"/home/itay/dev/pockets/node_modules/bigi/lib/index.js","bitcoinjs-lib":"/home/itay/dev/pockets/node_modules/bitcoinjs-lib/src/index.js","browser-request":"/home/itay/dev/pockets/node_modules/browser-request/index.js","bs58":"/home/itay/dev/pockets/node_modules/bs58/lib/bs58.js","buffer":"/home/itay/dev/pockets/node_modules/browserify/node_modules/buffer/index.js","ecurve":"/home/itay/dev/pockets/node_modules/ecurve/lib/index.js","request":"/home/itay/dev/pockets/node_modules/request/index.js","underscore":"/home/itay/dev/pockets/node_modules/underscore/underscore.js"}],"/home/itay/dev/pockets/lib/services/listener.js":[function(require,module,exports){
+(function (process){
+/**
+ * The listener module provides blockchain notifications when wallet balances are updates
+ * @type {*|exports}
+ */
+var
+  io = require('socket.io-client'),
+  async = require('async'),
+  request = process.browser ? require('browser-request') : require('request');
+
+var listener = module.exports;
+
+// The interval to check balances
+listener.interval = 1000 * 10;
+//Holds array of address to inspect
+listener.addresses = [];
+//Stores the last address balance state
+listener.balances = {};
+
+/**
+ * Add a new address for monitoring
+ * @param {string} address bitcoin address to watch
+ */
+listener.add = function (address) {
+  listener.addresses.push(address);
+};
+
+/**
+ * Removes an address from monitoring
+ * @param {string} address bitcoin address to watch
+ */
+listener.remove = function (address) {
+  return listener.addresses.splice(listener.addresses.indexOf(address), 1);
+};
+
+/**
+ * This is the function that actually listens and monitors for wallet updates.
+ */
+listener.doInterval = function () {
+  var uri = 'https://test-insight.bitpay.com/api/addr/';
+  async.map(listener.addresses, function (address, cb) {
+    var _uri = uri + address;
+    request.get(_uri, function (err, headers, body) {
+      if (err)
+        return cb(err);
+      if (headers.statusCode !== 200)
+        return cb(new Error('Failed to get address balance.'));
+      var wallet = JSON.parse(body);
+      var walletBalance = wallet.balance + wallet.unconfirmedBalance;
+      if (!listener.balances[address])
+        listener.balances[address] = walletBalance;
+      if (listener.balances[address] !== walletBalance) {
+        engine.events.emit('wallet-updated', wallet);
+        listener.balances[address] = walletBalance;
+      }
+    });
+  }, function (err, results) {
+  });
+};
+
+//lift off
+setInterval(listener.doInterval, listener.interval);
+listener.doInterval();
+
+}).call(this,require('_process'))
+},{"_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","browser-request":"/home/itay/dev/pockets/node_modules/browser-request/index.js","request":"/home/itay/dev/pockets/node_modules/request/index.js","socket.io-client":"/home/itay/dev/pockets/node_modules/socket.io-client/index.js"}],"/home/itay/dev/pockets/lib/services/pockets.js":[function(require,module,exports){
+/**
+ * Provides the engine with pocket logic and functionality
+ */
+var
+  async = require('async'),
+  traverse = require('traverse');
+
+var pockets = module.exports;
+
+//Holds the entire pockets collection
+pockets.ROOT = null;
+
+/**
+ * Lists all pockets
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.list = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  var calls = [];
+  traverse.forEach(pockets.ROOT, function (x) {
+    var point = this;
+    if (x && typeof x === 'object' && x.name) {
+      var fn = function (cb) {
+        pockets.get(x, function (err, pocket_with_balance) {
+          if (err)
+            return cb(err);
+          point.update(pocket_with_balance);
+          return cb(null);
+        });
+      };
+      if (options.mock)
+        fn = function (cb) {
+          return cb(null);
+        };
+      calls.push(fn);
+    }
+  });
+  async.series(calls, function (err) {
+    if (err)
+      return callback(err);
+    engine.bitcoin.balance(pockets.ROOT, function (err, balance) {
+      if (err)
+        return callback(err);
+      pockets.ROOT.wallet.balance = balance;
+      return callback(null, pockets.ROOT);
+    });
+
+  });
+};
+
+/**
+ * Create a new pocket
+ * @param {object} options object containing the pocket to add
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result */
+pockets.create = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  if (options.level_ratio)
+    options.hard_ratio = options.level_ratio;
+
+  if (!options.parent) {
+    var calls = [];
+    traverse.forEach(options, function (x) {
+      var point = this;
+      if (x && typeof x === 'object' && x.name) {
+        var fn = function (cb) {
+          engine.bitcoin.createWallet({}, function (err, result) {
+            if (err)
+              return callback(err);
+            x.wallet = x.wallet || result;
+            point.update(x);
+            engine.listener.add(x.wallet.address);
+            return cb(null, result);
+          });
+        };
+        calls.push(fn);
+      }
+    });
+    async.series(calls, function (err, results) {
+      pockets.ROOT = options;
+      return pockets.save({}, callback);
+    });
+  }
+  else {
+    pockets.get({name: options.parent}, function (err, parent) {
+      if (err)
+        return callback(err);
+      if (!parent.pockets)
+        parent.pockets = {};
+      engine.bitcoin.createWallet({}, function (err, result) {
+        if (err)
+          return callback(err);
+        options.wallet = result;
+        parent.pockets[options.name] = options;
+        return pockets.save({}, callback);
+      });
+    });
+  }
+};
+
+/**
+ * Get a pocket
+ * @param {object} options object containing options for get pocket
+ * - `name` the name of the pocket to fetch
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.get = function (options, callback) {
+  callback = callback || function () {
+  };
+  var recurse = function (parent, lookup) {
+    if (!parent.pockets)
+      return;
+    var found = null;
+    Object.keys(parent.pockets).forEach(function (key) {
+      var pocket = parent.pockets[key];
+      if (pocket.name === lookup) {
+        found = pocket;
+      }
+      if (!found && pocket.pockets)
+        found = recurse(pocket, lookup);
+    });
+    if (found)
+      return found;
+  };
+
+  if (pockets.ROOT.name === options.name)
+    return callback(null, pockets.ROOT);
+  var found = recurse(pockets.ROOT, options.name);
+  if (found) {
+    if (options.mock)
+      return callback(null, found);
+    engine.bitcoin.balance(found, function (err, balance) {
+      if (err)
+        return callback(err);
+      found.wallet.balance = balance;
+      return callback(null, found);
+    });
+  }
+  else
+    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
+};
+
+/**
+ * Updates a pocket
+ * @param {object} options object containing options for update
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result */
+pockets.update = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  pockets.get(options, function (err, pocket) {
+    if (err)
+      return callback(err);
+
+    engine.common.extend(pocket, options);
+    return pockets.save({}, callback);
+  });
+};
+
+/**
+ * Delete a pocket
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.delete = function (options, callback) {
+  callback = callback || function () {
+  };
+  var recurse = function (parent, lookup) {
+    var found = null;
+    Object.keys(parent.pockets).forEach(function (key, i) {
+      var pocket = parent.pockets[key];
+      if (pocket.name === lookup) {
+        found = traverse.clone(parent.pockets[pocket.name]);
+        delete parent.pockets[pocket.name];
+      }
+      if (!found && pocket.pockets)
+        found = recurse(pocket, lookup);
+    });
+    if (found)
+      return found;
+  };
+
+  if (pockets.ROOT[options.name] === options.name)
+    return callback(null, pockets.ROOT = {});
+
+  var found = recurse(pockets.ROOT, options.name);
+  if (found) {
+    pockets.get({name: 'root'}, function (err, rootPocket) {
+      if (!found.wallet.balance){
+        engine.listener.remove(found.wallet.address);
+        return pockets.save({}, callback);
+      }
+      engine.bitcoin.handleTransaction({
+        transactions: [
+          {
+            from: {
+              name: found.name,
+              wallet: found.wallet
+            },
+            to: {
+              name: 'root',
+              wallet: rootPocket.wallet
+            },
+            amount: found.wallet.balance
+          }
+        ]
+      }, function (err) {
+        if (err)
+          return callback(err);
+        engine.listener.remove(found.wallet.address);
+        pockets.save({}, callback);
+      });
+    });
+  }
+  else
+    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
+};
+
+/**
+ * Validate a pocket
+ * @param {object} options object containing options for validate
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ * @returns {*}
+ */
+pockets.validate = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  return engine.bitcoin.validate({address: options.wallet.address}, callback);
+};
+
+/**
+ * Saves the pockets collection to LocalStorage
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.save = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  return pockets.realign({mock: true}, function (err) {
+    return pockets.ensureLevelPercentages({}, function (err) {
+      return pockets.realign({}, function (err) {
+        if (err)
+          return callback(err);
+        engine.db.set('pockets.json', JSON.stringify(pockets.ROOT, null, '  '));
+        return callback(null);
+      });
+    });
+  });
+};
+
+/**
+ * Loads the pocket collection from LocalStorage
+ * @param {object} options object containing options for list
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.load = function (options, callback) {
+  pockets.ROOT = engine.db.get('pockets.json');
+  return callback(null);
+};
+
+/**
+ * Returns a snapshot of the current pocket collection
+ * @param {object} options object containing options for snapshot
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.snapshot = function (options, callback) {
+  var result = [];
+  traverse.map(pockets.ROOT, function (x) {
+    if (x && typeof x === 'object' && x.wallet && x.wallet.balance) {
+      result.push({name: x.name, balance: x.wallet.balance});
+    }
+  });
+  return callback(null, result);
+};
+
+/**
+ * Retrieves the pocket's balance
+ * @param {object} options object containing options for getting balance
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.totalBalance = function (options, callback) {
+  var balance = 0;
+  return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
+    traverse.forEach(rootPocket, function (x) {
+      if (x && typeof x === 'object' && x.wallet && x.wallet.balance)
+        balance += x.wallet.balance;
+    });
+    return callback(null, balance);
+  });
+};
+
+/**
+ * Realign/rebalance the pockets collection
+ * @param {object} options object containing options for realign
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.realign = function (options, callback) {
+  callback = callback || function () {
+  };
+
+  var alignment = {
+    mismatch: [], //holds all mismatches
+    plus_transactions: [], //holds only transactions with positive value to be moved to root
+    neg_transactions: [] //holds only transactions with negative value to be moved to root
+  };
+  pockets.totalBalance({}, function (err, balance) {
+    return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
+      if (err)
+        return callback(err);
+
+      traverse.forEach(rootPocket, function (x) {
+        var point = this;
+        if (x && typeof x === 'object' && point.parent && x.name) {
+          var level = point.level / 2;
+          var path = traverse.clone(point.parent.path);
+          path = path.splice(0, path.length - 1);
+          var _path = traverse.clone(path);
+          //_path.pop();
+          //_path.pop(); //remove pockets
+
+          var parentRatios = [];
+          while (_path.length > 0) {
+            var elem = traverse.get(rootPocket, _path);
+            parentRatios.push(elem.level_ratio);
+            _path.pop();
+            _path.pop(); //remove pockets
+          }
+          parentRatios = parentRatios.reverse();
+          var parent = traverse.get(rootPocket, path);
+          if (parent.pockets) {
+            var freePercentage = 1;
+            var hardPockets = 0;
+            Object.keys(parent.pockets).forEach(function (key) {
+              var _p = parent.pockets[key];
+              if (_p.hard_ratio) {
+                freePercentage = freePercentage - ( _p.hard_ratio || 0);
+                hardPockets++;
+              }
+            });
+            var length = Object.keys(parent.pockets).length;
+            var level_ratio = freePercentage / (length - hardPockets);
+            var actual_ratio = 1;
+
+            if (x.hard_ratio) {
+              x.level_ratio = x.hard_ratio;
+            }
+            else
+              x.level_ratio = level_ratio;
+
+            parentRatios.forEach(function (x) {
+              actual_ratio = actual_ratio * x;
+            });
+            actual_ratio = actual_ratio * x.level_ratio;
+            x.leaf = !(x.hasOwnProperty('pockets') && (Object.keys(x.pockets).length > 0));
+            //if (x.leaf) {
+            x.actual_ratio = actual_ratio;
+            // }
+            x._path = point.path;
+            x.path = point.path.join('.').replace(/pockets./ig, '');
+            x.level = level;
+
+            x.level_siblings = length;
+            x.parent_ratios = parentRatios;
+            x.parent = {
+              name: point.parent.parent.node.name
+            };
+            if (!point.isRoot && !x.leaf && x.wallet.balance !== 0) {
+              x.wallet.balance = x.wallet.balance || 0;
+              x.wallet.balance_should_be = 0;
+              x.wallet.balance_delta = x.wallet.balance - x.wallet.balance_should_be;
+              console.log('found', x.name, x.wallet.balance_delta);
+              alignment.neg_transactions.push({
+                from: {
+                  name: x.name,
+                  wallet: x.wallet
+                },
+                to: {
+                  name: 'root',
+                  wallet: rootPocket.wallet
+                },
+                amount: x.wallet.balance
+              });
+            }
+            if (x.leaf) {
+              x.wallet.balance = x.wallet.balance || 0;
+              x.wallet.balance_delta = 0;
+              x.wallet.balance_should_be = balance * x.actual_ratio;
+              x.limit = x.limit || 0;
+              var limited = false;
+              if (x.limit > 0 && x.wallet.balance_should_be > x.limit) {
+                limited = true;
+                x.wallet.balance_should_be = x.limit;
+              }
+              //if (!options.mock)
+              //console.log(x.name, 'current', x.wallet.balance, 'should be', x.wallet.balance_should_be, 'ratio', x.actual_ratio, x.parent_ratios);
+              if (!x.savings || x.wallet.balance - x.wallet.balance_should_be < 0)
+                x.wallet.balance_delta = x.wallet.balance - x.wallet.balance_should_be;
+
+              //console.log('delta', x.wallet.balance_delta);
+              if (x.wallet.balance_delta < 0.0001 && x.wallet.balance_delta > 0)
+                x.wallet.balance_delta = 0;
+              if (x.wallet.balance_delta > -0.0001 && x.wallet.balance_delta < 0)
+                x.wallet.balance_delta = 0;
+
+
+              alignment.mismatch.push({
+                from: {
+                  name: x.name,
+                  wallet: x.wallet
+                },
+                to: {
+                  name: 'root',
+                  wallet: rootPocket.wallet
+                },
+                amount: x.wallet.balance_delta
+              });
+
+              if (x.wallet.balance_delta > 0) {
+                //balance = balance - x.wallet.balance_delta;
+                alignment.plus_transactions.push({
+                  from: {
+                    name: x.name,
+                    wallet: x.wallet
+                  },
+                  to: {
+                    name: 'root',
+                    wallet: rootPocket.wallet
+                  },
+                  amount: x.wallet.balance_delta
+                });
+              }
+              else if (x.wallet.balance_delta < 0) {
+                //balance = balance + x.wallet.balance_delta;
+                alignment.neg_transactions.push({
+                  from: {
+                    name: 'root',
+                    wallet: rootPocket.wallet
+                  },
+                  to: {
+                    name: x.name,
+                    wallet: x.wallet
+                  },
+                  amount: x.wallet.balance_delta
+                });
+              }
+            }
+            point.update(x);
+          }
+        }
+      });
+
+
+      if (options.mock)
+        return callback(null, alignment.transactions);
+      if (alignment.plus_transactions.length > 0) {
+        return engine.bitcoin.handleTransaction({
+          transactions: alignment.plus_transactions
+        }, callback);
+      }
+      else if (alignment.neg_transactions.length > 0)
+        return engine.bitcoin.handleTransaction({
+          transactions: alignment.neg_transactions
+        }, callback);
+      else if (rootPocket.wallet.balance > 0.001) {
+        var savingsPocket = pockets.getSavings();
+        if (savingsPocket) {
+          alignment.neg_transactions.push({
+            from: {
+              name: 'root',
+              wallet: rootPocket.wallet
+            },
+            to: {
+              name: savingsPocket.name,
+              wallet: savingsPocket.wallet
+            },
+            amount: rootPocket.wallet.balance
+          });
+          return engine.bitcoin.handleTransaction({
+            transactions: alignment.neg_transactions
+          }, callback);
+        }
+        else {
+          engine.events.emit('equilibrium');
+          return callback(null, alignment.transactions);
+        }
+      }
+      else {
+        engine.events.emit('equilibrium');
+        return callback(null, alignment.transactions);
+      }
+    });
+  });
+};
+
+/**
+ * Ensures that pockets across a level fill up to 100%
+ * @param {object} options object containing options for ensuring levels
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.ensureLevelPercentages = function (options, callback) {
+  var levels = 0;
+  var levelPockets = {};
+  var mismatch = false;
+  traverse.forEach(pockets.ROOT, function (x, i) {
+    var point = this;
+
+    if (x && typeof x === 'object' && x.name) {
+      var level = x.level;
+      levels = levels < level ? level : levels;
+      if (x.parent) {
+        levelPockets[x.parent.name] = levelPockets[x.parent.name] || [];
+        levelPockets[x.parent.name].push({
+          path: point.path,
+          percentage: x.level_ratio,
+          hard: x.hard_ratio || 0,
+          point: point
+        });
+      }
+    }
+  });
+  //engine.common.inspect(levelPockets);
+  Object.keys(levelPockets).forEach(function (key) {
+    var level = levelPockets[key];
+    var levelPercentage = 0;
+    var hardPercentage = 0;
+    var hardPockets = 0;
+    var freePercentage = 1;
+    var freeDist = 0;
+    level.forEach(function (pocket) {
+      levelPercentage += pocket.percentage;
+      hardPercentage += pocket.hard;
+      hardPockets += pocket.hard ? 1 : 0;
+    });
+    freePercentage = 1 - hardPercentage;
+    freeDist = freePercentage / (level.length - hardPockets);
+    if (levelPercentage !== 1) {
+      mismatch = true;
+      //console.log('found a mismatch, level', key, levelPercentage, hardPercentage, freePercentage, freeDist);
+      level.forEach(function (pocket, i) {
+        pocket.level_ratio = pocket.hard || freeDist;
+        var actual_ratio = 1;
+        pocket.point.node.parent_ratios.forEach(function (x) {
+          actual_ratio = actual_ratio * x;
+        });
+        actual_ratio = actual_ratio * pocket.level_ratio;
+        if (pocket.point.node.actual_ratio != actual_ratio) {
+          //console.log(pocket.point.node.name, 'set actual ', pocket.point.node.actual_ratio, actual_ratio);
+        }
+        var node = pocket.point.node;
+        node.actual_ratio = actual_ratio;
+        node.level_ratio = pocket.level_ratio;
+        pocket.point.update(node);
+      });
+    }
+  });
+  return callback(null, mismatch);
+};
+
+/**
+ * Returns the dedicated savings pocket
+ * @param {object} options object containing options for getting the savings pocket
+ * @param {function} callback function to receive results
+ * - `err` the error (if any occured)
+ * - `result` the function result
+ */
+pockets.getSavings = function () {
+  var found = null;
+  traverse.forEach(pockets.ROOT, function (x) {
+    if (x && typeof x === 'object' && x.leaf && x.savings)
+      found = x;
+  });
+  if (found)
+    return found;
+
+  traverse.forEach(pockets.ROOT, function (x) {
+    if (x && typeof x === 'object' && x.leaf && x.name === 'pension')
+      found = x;
+  });
+  return found;
+};
+},{"async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","traverse":"/home/itay/dev/pockets/node_modules/traverse/index.js"}],"/home/itay/dev/pockets/node_modules/assert/assert.js":[function(require,module,exports){
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
 // THIS IS NOT TESTED NOR LIKELY TO WORK OUTSIDE V8!
@@ -67874,7 +68924,7 @@ module.exports={
     "test": "mocha",
     "test:coverage": "istanbul cover ./node_modules/.bin/_mocha -- -R dot test",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "build": "gulp build"
+    "build": "cd app && gulp build"
   },
   "dependencies": {
     "async": "^0.9.0",
@@ -67916,844 +68966,9 @@ module.exports={
     "watchify": "^2.4.0",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
-  }
+  },
+  "cordovaPlugins": []
 }
-
-},{}],"/home/itay/dev/pockets/www/lib/pockets/common/config.js":[function(require,module,exports){
-var config = module.exports;
-
-/**
- * Retrieve a configuration value by key
- * @param {string} key the name of the configuration key to retrieve
- * @returns {*} the configuration value stored for the key
- */
-config.get = function (
-  key) {
-  return engine.db.get(key);
-};
-
-/**
- * Store a configuration value by key
- * @param {string} key the name of the configuration key to store
- * @param {*} value the configuration value to store
- */
-config.set = function (key, value) {
-  return engine.db.set(key, value);
-};
-},{}],"/home/itay/dev/pockets/www/lib/pockets/common/db.js":[function(require,module,exports){
-(function (global){
-var db = module.exports;
-if (typeof global.localStorage === 'undefined') {
-  var LocalStorage = require('node-localstorage').LocalStorage;
-  db._localStorage = new LocalStorage('./scratch');
-}
-else
-  db._localStorage = global.localStorage;
-
-/**
- * Retrieve a db value by key
- * @param {string} key the name of the db key to retrieve
- * @returns {*} the db value stored for the key
- */
-db.get = function (key) {
-  var result;
-  result = db._localStorage.getItem(key);
-  try {
-    result = JSON.parse(result);
-  }
-  catch (ex) {
-
-  }
-  return result;
-};
-
-/**
- * Store a database value by key
- * @param {string} key the name of the db key to store
- * @param {*} value the db value to store
- */
-db.set = function (key, value) {
-  if (typeof value === 'object')
-    value = JSON.stringify(value);
-  return db._localStorage.setItem(key, value);
-};
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"node-localstorage":"/home/itay/dev/pockets/node_modules/node-localstorage/LocalStorage.js"}],"/home/itay/dev/pockets/www/lib/pockets/common/events.js":[function(require,module,exports){
-var
-  EventEmitter2 = require('eventemitter2').EventEmitter2;
-
-var _events = new EventEmitter2({wildcard: true, newListener: true});
-
-module.exports = exports = _events;
-},{"eventemitter2":"/home/itay/dev/pockets/node_modules/eventemitter2/lib/eventemitter2.js"}],"/home/itay/dev/pockets/www/lib/pockets/common/globals.js":[function(require,module,exports){
-(function (global){
-global.emptyfunc = function () {
-
-};
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],"/home/itay/dev/pockets/www/lib/pockets/common/index.js":[function(require,module,exports){
-/**
- * Holds general common functions to be used across the engine
- */
-var util = require('util');
-
-var common = module.exports;
-
-common.extend = util._extend;
-
-/**
- * Inspects an object passed
- * @param {options} obj object to be inspected
- */
-common.inspect = function (obj) {
-  console.log(util.inspect(obj, {depth: null, colors: true}));
-};
-},{"util":"/home/itay/dev/pockets/node_modules/browserify/node_modules/util/util.js"}],"/home/itay/dev/pockets/www/lib/pockets/common/logger.js":[function(require,module,exports){
-/**
- * Common logger functionality
- */
-var logger = module.exports;
-
-/**
- * We stub console log based on pre-defined levels.
- * This is useful is we wish to attach additional logging outputs
- *  set logging levels or present output differently based on levels.
- */
-['silly', 'trace', 'debug', 'info', 'warn', 'error'].forEach(function (level) {
-  logger[level] = function (msg) {
-    if (console[level])
-      console[level](msg);
-  }
-});
-},{}],"/home/itay/dev/pockets/www/lib/pockets/services/bitcoin.js":[function(require,module,exports){
-(function (process){
-/**
- * Bitcoin services for pockets.
- */
-
-var
-  _bitcoin = require('bitcoinjs-lib'),
-  base58 = require('bs58'),
-  ecurve = require('ecurve'),
-  BigInteger = require('bigi'),
-  Buffer = require('buffer'),
-  async = require('async'),
-  _ = require('underscore'),
-  request = process.browser ? require('browser-request') : require('request');
-
-var bitcoin = module.exports;
-
-/**
- * Validates a wallet address
- * @param {object} options contains the `address` attribute
- * @param {function} callback the callback function to run on done
- *  - `err` holds the error (if any occured)
- *  - `result` true/false indicating if the wallet is valid.
- */
-bitcoin.validateWallet = function (options, callback) {
-  function isAddress(string) {
-    try {
-      _bitcoin.Address.fromBase58Check(string);
-    } catch (e) {
-      return false;
-    }
-    return true;
-  }
-
-  if (isAddress(options.address))
-    return callback(null);
-  return callback(new Error('Invalid wallet address [' + options.address + '].'))
-};
-
-bitcoin.createWallet = function (options, callback) {
-  try {
-    var key = _bitcoin.ECKey.makeRandom();
-    var address = key.pub.getAddress(_bitcoin.networks.testnet).toString();
-    return callback(null, {key: key.toWIF(_bitcoin.networks.testnet), address: address});
-  }
-  catch (ex) {
-    return callback(ex);
-  }
-};
-
-bitcoin.balance = function (options, callback) {
-  var balance = null;
-  var uri = 'https://test-insight.bitpay.com/api/addr/';
-  uri += options.wallet.address;
-  request.get(uri, function (err, headers, body) {
-    if (err)
-      return callback(err);
-    if (headers.statusCode !== 200)
-      return callback(new Error('Failed to get address balance.'));
-    try {
-      var details = JSON.parse(body);
-      balance = details.balance + details.unconfirmedBalance;
-    }
-    catch (ex) {
-      return callback(ex);
-    }
-
-    return callback(null, balance);
-  });
-};
-
-
-bitcoin.choose_vouts = function (txs, totalamount) {
-  var inplay = [];
-  var inplayAmount = 0;
-  var change = [];
-
-  var sorted = _.sortBy(txs, function (x) {
-    return x.amount;
-  });
-
-  sorted.forEach(function (tx) {
-    if (inplayAmount < totalamount) {
-      inplay.push(tx);
-      inplayAmount += tx.amount;
-    }
-  });
-  return inplay;
-};
-
-bitcoin.buildTransaction = function (options, callback) {
-  options.tx = new _bitcoin.TransactionBuilder();
-  var key = _bitcoin.ECKey.fromWIF(options.from.wallet.key);
-  var uri = 'https://test-insight.bitpay.com/api/addr/';
-  uri += options.from.wallet.address + '/utxo';
-  console.log('fetching utxo ', uri);
-  request.get(uri, function (err, headers, body) {
-    if (err)
-      return callback(err);
-    if (headers.statusCode !== 200)
-      return callback(new Error('Failed to get address balance.'));
-    var details = JSON.parse(body);
-    options.vouts = bitcoin.choose_vouts(details, options.amount);
-    options.vouts.forEach(function (vout, i) {
-      console.log('adding vout for wallet [' + options.from.wallet.address + '], ', vout.txid, vout.vout);
-      options.tx.addInput(vout.txid, vout.vout)
-    });
-    options.tx.addOutput(options.to.wallet.address, options.amount * 100000000);
-    options.vouts.forEach(function (vout, i) {
-      options.tx.sign(i, key);
-    });
-    options.toHex = options.tx.build().toHex();
-    return callback(null, options.toHex);
-  });
-};
-
-bitcoin.handleTransaction = function (options, callback) {
-  var transactions = options.transactions;
-  //should be a complete transaction and handle it
-  engine.pockets.snapshot({}, function (err, snapshot) {
-    //console.log('before snapshot', snapshot);
-    //mock up, update balances and trigger event.
-    async.map(transactions, function (transaction, cb) {
-      var amount = transaction.amount;
-      engine.pockets.get({name: transaction.from.name, mock: true}, function (err, fromPocket) {
-        engine.pockets.get({name: transaction.to.name, mock: true}, function (err, toPocket) {
-          if (err)
-            return cb(err);
-
-          if (fromPocket)
-            fromPocket.wallet.balance = fromPocket.wallet.balance - Math.abs(amount);
-          toPocket.wallet.balance = toPocket.wallet.balance + Math.abs(amount);
-          console.log('[' + transaction.from.name + '] --> [' + transaction.to.name + ']', Math.abs(amount));
-          //console.log('Updating wallet [' + transaction.to.name + '] adding ' + amount);
-
-          if (options.mock || engine.options.mock)
-            return cb(null);
-
-          bitcoin.buildTransaction(transaction, function (err, tx_hex) {
-            if (err)
-              return cb(err);
-
-            var uri = 'https://test-insight.bitpay.com/api/tx/send';
-            request.post(uri, {form: {rawtx: tx_hex}}, function (err, headers, body) {
-              if (err)
-                return cb(err);
-              if (headers.statusCode !== 200)
-                return cb(new Error('Failed to send transaction.'));
-              return cb();
-            });
-          });
-        });
-      });
-    }, function (err, results) {
-      if (err)
-        return callback(err);
-      engine.pockets.snapshot({}, function (err, snapshot) {
-        console.log('after snapshot', snapshot);
-        engine.events.emit('wallet-update');
-        return callback(null, options);
-      });
-    });
-  });
-};
-}).call(this,require('_process'))
-},{"_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","bigi":"/home/itay/dev/pockets/node_modules/bigi/lib/index.js","bitcoinjs-lib":"/home/itay/dev/pockets/node_modules/bitcoinjs-lib/src/index.js","browser-request":"/home/itay/dev/pockets/node_modules/browser-request/index.js","bs58":"/home/itay/dev/pockets/node_modules/bs58/lib/bs58.js","buffer":"/home/itay/dev/pockets/node_modules/browserify/node_modules/buffer/index.js","ecurve":"/home/itay/dev/pockets/node_modules/ecurve/lib/index.js","request":"/home/itay/dev/pockets/node_modules/request/index.js","underscore":"/home/itay/dev/pockets/node_modules/underscore/underscore.js"}],"/home/itay/dev/pockets/www/lib/pockets/services/listener.js":[function(require,module,exports){
-(function (process){
-var
-  io = require('socket.io-client'),
-  async = require('async'),
-  request = process.browser ? require('browser-request') : require('request');
-
-var listener = module.exports;
-
-listener.interval = 1000 * 10;
-listener.addresses = [];
-listener.balances = {};
-
-listener.add = function (address) {
-  listener.addresses.push(address);
-};
-
-listener.remove = function (address) {
-  return listener.addresses.splice(listener.addresses.indexOf(address), 1);
-};
-listener.doInterval = function () {
-  var uri = 'https://test-insight.bitpay.com/api/addr/';
-  async.map(listener.addresses, function (address, cb) {
-    var _uri = uri + address;
-    request.get(_uri, function (err, headers, body) {
-      if (err)
-        return cb(err);
-      if (headers.statusCode !== 200)
-        return cb(new Error('Failed to get address balance.'));
-      var wallet = JSON.parse(body);
-      var walletBalance = wallet.balance + wallet.unconfirmedBalance;
-      if (!listener.balances[address])
-        listener.balances[address] = walletBalance;
-      if (listener.balances[address] !== walletBalance) {
-        engine.events.emit('wallet-updated', wallet);
-        listener.balances[address] = walletBalance;
-      }
-    });
-  }, function (err, results) {
-  });
-};
-
-setInterval(listener.doInterval, listener.interval);
-listener.doInterval();
-
-}).call(this,require('_process'))
-},{"_process":"/home/itay/dev/pockets/node_modules/browserify/node_modules/process/browser.js","async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","browser-request":"/home/itay/dev/pockets/node_modules/browser-request/index.js","request":"/home/itay/dev/pockets/node_modules/request/index.js","socket.io-client":"/home/itay/dev/pockets/node_modules/socket.io-client/index.js"}],"/home/itay/dev/pockets/www/lib/pockets/services/pockets.js":[function(require,module,exports){
-var
-  async = require('async'),
-  traverse = require('traverse');
-
-var pockets = module.exports;
-
-pockets.ROOT = null;
-
-pockets.list = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  var calls = [];
-  traverse.forEach(pockets.ROOT, function (x) {
-    var point = this;
-    if (x && typeof x === 'object' && x.name) {
-      var fn = function (cb) {
-        pockets.get(x, function (err, pocket_with_balance) {
-          if (err)
-            return cb(err);
-          point.update(pocket_with_balance);
-          return cb(null);
-        });
-      };
-      if (options.mock)
-        fn = function (cb) {
-          return cb(null);
-        };
-      calls.push(fn);
-    }
-  });
-  async.series(calls, function (err) {
-    if (err)
-      return callback(err);
-    engine.bitcoin.balance(pockets.ROOT, function (err, balance) {
-      if (err)
-        return callback(err);
-      pockets.ROOT.wallet.balance = balance;
-      return callback(null, pockets.ROOT);
-    });
-
-  });
-};
-
-pockets.create = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  if (options.level_ratio)
-    options.hard_ratio = options.level_ratio;
-
-  if (!options.parent) {
-    var calls = [];
-    traverse.forEach(options, function (x) {
-      var point = this;
-      if (x && typeof x === 'object' && x.name) {
-        var fn = function (cb) {
-          engine.bitcoin.createWallet({}, function (err, result) {
-            if (err)
-              return callback(err);
-            x.wallet = x.wallet || result;
-            point.update(x);
-            engine.listener.add(x.wallet.address);
-            return cb(null, result);
-          });
-        };
-        calls.push(fn);
-      }
-    });
-    async.series(calls, function (err, results) {
-      pockets.ROOT = options;
-      return pockets.save({}, callback);
-    });
-  }
-  else {
-    pockets.get({name: options.parent}, function (err, parent) {
-      if (err)
-        return callback(err);
-      if (!parent.pockets)
-        parent.pockets = {};
-      engine.bitcoin.createWallet({}, function (err, result) {
-        if (err)
-          return callback(err);
-        options.wallet = result;
-        parent.pockets[options.name] = options;
-        return pockets.save({}, callback);
-      });
-    });
-  }
-};
-
-pockets.get = function (options, callback) {
-  callback = callback || function () {
-  };
-  var recurse = function (parent, lookup) {
-    if (!parent.pockets)
-      return;
-    var found = null;
-    Object.keys(parent.pockets).forEach(function (key) {
-      var pocket = parent.pockets[key];
-      if (pocket.name === lookup) {
-        found = pocket;
-      }
-      if (!found && pocket.pockets)
-        found = recurse(pocket, lookup);
-    });
-    if (found)
-      return found;
-  };
-
-  if (pockets.ROOT.name === options.name)
-    return callback(null, pockets.ROOT);
-  var found = recurse(pockets.ROOT, options.name);
-  if (found) {
-    if (options.mock)
-      return callback(null, found);
-    engine.bitcoin.balance(found, function (err, balance) {
-      if (err)
-        return callback(err);
-      found.wallet.balance = balance;
-      return callback(null, found);
-    });
-  }
-  else
-    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
-};
-
-pockets.update = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  pockets.get(options, function (err, pocket) {
-    if (err)
-      return callback(err);
-
-    engine.common.extend(pocket, options);
-    return pockets.save({}, callback);
-  });
-};
-
-pockets.delete = function (options, callback) {
-  callback = callback || function () {
-  };
-  var recurse = function (parent, lookup) {
-    var found = null;
-    Object.keys(parent.pockets).forEach(function (key, i) {
-      var pocket = parent.pockets[key];
-      if (pocket.name === lookup) {
-        found = traverse.clone(parent.pockets[pocket.name]);
-        delete parent.pockets[pocket.name];
-      }
-      if (!found && pocket.pockets)
-        found = recurse(pocket, lookup);
-    });
-    if (found)
-      return found;
-  };
-
-  if (pockets.ROOT[options.name] === options.name)
-    return callback(null, pockets.ROOT = {});
-
-  var found = recurse(pockets.ROOT, options.name);
-  if (found) {
-    pockets.get({name: 'root'}, function (err, rootPocket) {
-      if (!found.wallet.balance){
-        engine.listener.remove(found.wallet.address);
-        return pockets.save({}, callback);
-      }
-      engine.bitcoin.handleTransaction({
-        transactions: [
-          {
-            from: {
-              name: found.name,
-              wallet: found.wallet
-            },
-            to: {
-              name: 'root',
-              wallet: rootPocket.wallet
-            },
-            amount: found.wallet.balance
-          }
-        ]
-      }, function (err) {
-        if (err)
-          return callback(err);
-        engine.listener.remove(found.wallet.address);
-        pockets.save({}, callback);
-      });
-    });
-  }
-  else
-    return callback(new Error('Failed to find pocket with name [' + options.name + '].'));
-};
-
-
-pockets.validate = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  return engine.bitcoin.validate({address: options.wallet.address}, callback);
-};
-
-pockets.save = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  return pockets.realign({mock: true}, function (err) {
-    return pockets.ensureLevelPercentages({}, function (err) {
-      return pockets.realign({}, function (err) {
-        if (err)
-          return callback(err);
-        engine.db.set('pockets.json', JSON.stringify(pockets.ROOT, null, '  '));
-        return callback(null);
-      });
-    });
-  });
-};
-
-pockets.load = function (options, callback) {
-  pockets.ROOT = engine.db.get('pockets.json');
-  return callback(null);
-};
-
-pockets.snapshot = function (options, callback) {
-  var result = [];
-  traverse.map(pockets.ROOT, function (x) {
-    if (x && typeof x === 'object' && x.wallet && x.wallet.balance) {
-      result.push({name: x.name, balance: x.wallet.balance});
-    }
-  });
-  return callback(null, result);
-};
-
-pockets.totalBalance = function (options, callback) {
-  var balance = 0;
-  return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
-    traverse.forEach(rootPocket, function (x) {
-      if (x && typeof x === 'object' && x.wallet && x.wallet.balance)
-        balance += x.wallet.balance;
-    });
-    return callback(null, balance);
-  });
-};
-
-pockets.realign = function (options, callback) {
-  callback = callback || function () {
-  };
-
-  var alignment = {
-    mismatch: [], //holds all mismatches
-    plus_transactions: [], //holds only transactions with positive value to be moved to root
-    neg_transactions: [] //holds only transactions with negative value to be moved to root
-  };
-  pockets.totalBalance({}, function (err, balance) {
-    return engine.pockets.get({name: 'root'}, function (err, rootPocket) {
-      if (err)
-        return callback(err);
-
-      traverse.forEach(rootPocket, function (x) {
-        var point = this;
-        if (x && typeof x === 'object' && point.parent && x.name) {
-          var level = point.level / 2;
-          var path = traverse.clone(point.parent.path);
-          path = path.splice(0, path.length - 1);
-          var _path = traverse.clone(path);
-          //_path.pop();
-          //_path.pop(); //remove pockets
-
-          var parentRatios = [];
-          while (_path.length > 0) {
-            var elem = traverse.get(rootPocket, _path);
-            parentRatios.push(elem.level_ratio);
-            _path.pop();
-            _path.pop(); //remove pockets
-          }
-          parentRatios = parentRatios.reverse();
-          var parent = traverse.get(rootPocket, path);
-          if (parent.pockets) {
-            var freePercentage = 1;
-            var hardPockets = 0;
-            Object.keys(parent.pockets).forEach(function (key) {
-              var _p = parent.pockets[key];
-              if (_p.hard_ratio) {
-                freePercentage = freePercentage - ( _p.hard_ratio || 0);
-                hardPockets++;
-              }
-            });
-            var length = Object.keys(parent.pockets).length;
-            var level_ratio = freePercentage / (length - hardPockets);
-            var actual_ratio = 1;
-
-            if (x.hard_ratio) {
-              x.level_ratio = x.hard_ratio;
-            }
-            else
-              x.level_ratio = level_ratio;
-
-            parentRatios.forEach(function (x) {
-              actual_ratio = actual_ratio * x;
-            });
-            actual_ratio = actual_ratio * x.level_ratio;
-            x.leaf = !(x.hasOwnProperty('pockets') && (Object.keys(x.pockets).length > 0));
-            //if (x.leaf) {
-            x.actual_ratio = actual_ratio;
-            // }
-            x._path = point.path;
-            x.path = point.path.join('.').replace(/pockets./ig, '');
-            x.level = level;
-
-            x.level_siblings = length;
-            x.parent_ratios = parentRatios;
-            x.parent = {
-              name: point.parent.parent.node.name
-            };
-            if (!point.isRoot && !x.leaf && x.wallet.balance !== 0) {
-              x.wallet.balance = x.wallet.balance || 0;
-              x.wallet.balance_should_be = 0;
-              x.wallet.balance_delta = x.wallet.balance - x.wallet.balance_should_be;
-              console.log('found', x.name, x.wallet.balance_delta);
-              alignment.neg_transactions.push({
-                from: {
-                  name: x.name,
-                  wallet: x.wallet
-                },
-                to: {
-                  name: 'root',
-                  wallet: rootPocket.wallet
-                },
-                amount: x.wallet.balance
-              });
-            }
-            if (x.leaf) {
-              x.wallet.balance = x.wallet.balance || 0;
-              x.wallet.balance_delta = 0;
-              x.wallet.balance_should_be = balance * x.actual_ratio;
-              x.limit = x.limit || 0;
-              var limited = false;
-              if (x.limit > 0 && x.wallet.balance_should_be > x.limit) {
-                limited = true;
-                x.wallet.balance_should_be = x.limit;
-              }
-              //if (!options.mock)
-              //console.log(x.name, 'current', x.wallet.balance, 'should be', x.wallet.balance_should_be, 'ratio', x.actual_ratio, x.parent_ratios);
-              if (!x.savings || x.wallet.balance - x.wallet.balance_should_be < 0)
-                x.wallet.balance_delta = x.wallet.balance - x.wallet.balance_should_be;
-
-              //console.log('delta', x.wallet.balance_delta);
-              if (x.wallet.balance_delta < 0.0001 && x.wallet.balance_delta > 0)
-                x.wallet.balance_delta = 0;
-              if (x.wallet.balance_delta > -0.0001 && x.wallet.balance_delta < 0)
-                x.wallet.balance_delta = 0;
-
-
-              alignment.mismatch.push({
-                from: {
-                  name: x.name,
-                  wallet: x.wallet
-                },
-                to: {
-                  name: 'root',
-                  wallet: rootPocket.wallet
-                },
-                amount: x.wallet.balance_delta
-              });
-
-              if (x.wallet.balance_delta > 0) {
-                //balance = balance - x.wallet.balance_delta;
-                alignment.plus_transactions.push({
-                  from: {
-                    name: x.name,
-                    wallet: x.wallet
-                  },
-                  to: {
-                    name: 'root',
-                    wallet: rootPocket.wallet
-                  },
-                  amount: x.wallet.balance_delta
-                });
-              }
-              else if (x.wallet.balance_delta < 0) {
-                //balance = balance + x.wallet.balance_delta;
-                alignment.neg_transactions.push({
-                  from: {
-                    name: 'root',
-                    wallet: rootPocket.wallet
-                  },
-                  to: {
-                    name: x.name,
-                    wallet: x.wallet
-                  },
-                  amount: x.wallet.balance_delta
-                });
-              }
-            }
-            point.update(x);
-          }
-        }
-      });
-
-
-      if (options.mock)
-        return callback(null, alignment.transactions);
-      if (alignment.plus_transactions.length > 0) {
-        return engine.bitcoin.handleTransaction({
-          transactions: alignment.plus_transactions
-        }, callback);
-      }
-      else if (alignment.neg_transactions.length > 0)
-        return engine.bitcoin.handleTransaction({
-          transactions: alignment.neg_transactions
-        }, callback);
-      else if (rootPocket.wallet.balance > 0.001) {
-        var savingsPocket = pockets.getSavings();
-        if (savingsPocket) {
-          alignment.neg_transactions.push({
-            from: {
-              name: 'root',
-              wallet: rootPocket.wallet
-            },
-            to: {
-              name: savingsPocket.name,
-              wallet: savingsPocket.wallet
-            },
-            amount: rootPocket.wallet.balance
-          });
-          return engine.bitcoin.handleTransaction({
-            transactions: alignment.neg_transactions
-          }, callback);
-        }
-        else {
-          engine.events.emit('equilibrium');
-          return callback(null, alignment.transactions);
-        }
-      }
-      else {
-        engine.events.emit('equilibrium');
-        return callback(null, alignment.transactions);
-      }
-    });
-  });
-};
-
-pockets.ensureLevelPercentages = function (options, callback) {
-  var levels = 0;
-  var levelPockets = {};
-  var mismatch = false;
-  traverse.forEach(pockets.ROOT, function (x, i) {
-    var point = this;
-
-    if (x && typeof x === 'object' && x.name) {
-      var level = x.level;
-      levels = levels < level ? level : levels;
-      if (x.parent) {
-        levelPockets[x.parent.name] = levelPockets[x.parent.name] || [];
-        levelPockets[x.parent.name].push({
-          path: point.path,
-          percentage: x.level_ratio,
-          hard: x.hard_ratio || 0,
-          point: point
-        });
-      }
-    }
-  });
-  //engine.common.inspect(levelPockets);
-  Object.keys(levelPockets).forEach(function (key) {
-    var level = levelPockets[key];
-    var levelPercentage = 0;
-    var hardPercentage = 0;
-    var hardPockets = 0;
-    var freePercentage = 1;
-    var freeDist = 0;
-    level.forEach(function (pocket) {
-      levelPercentage += pocket.percentage;
-      hardPercentage += pocket.hard;
-      hardPockets += pocket.hard ? 1 : 0;
-    });
-    freePercentage = 1 - hardPercentage;
-    freeDist = freePercentage / (level.length - hardPockets);
-    if (levelPercentage !== 1) {
-      mismatch = true;
-      //console.log('found a mismatch, level', key, levelPercentage, hardPercentage, freePercentage, freeDist);
-      level.forEach(function (pocket, i) {
-        pocket.level_ratio = pocket.hard || freeDist;
-        var actual_ratio = 1;
-        pocket.point.node.parent_ratios.forEach(function (x) {
-          actual_ratio = actual_ratio * x;
-        });
-        actual_ratio = actual_ratio * pocket.level_ratio;
-        if (pocket.point.node.actual_ratio != actual_ratio) {
-          //console.log(pocket.point.node.name, 'set actual ', pocket.point.node.actual_ratio, actual_ratio);
-        }
-        var node = pocket.point.node;
-        node.actual_ratio = actual_ratio;
-        node.level_ratio = pocket.level_ratio;
-        pocket.point.update(node);
-      });
-    }
-  });
-  return callback(null, mismatch);
-};
-
-pockets.getSavings = function () {
-  var found = null;
-  traverse.forEach(pockets.ROOT, function (x) {
-    if (x && typeof x === 'object' && x.leaf && x.savings)
-      found = x;
-  });
-  if (found)
-    return found;
-
-  traverse.forEach(pockets.ROOT, function (x) {
-    if (x && typeof x === 'object' && x.leaf && x.name === 'pension')
-      found = x;
-  });
-  return found;
-};
-},{"async":"/home/itay/dev/pockets/node_modules/async/lib/async.js","traverse":"/home/itay/dev/pockets/node_modules/traverse/index.js"}]},{},["./www/lib/pockets/engine.js"]);
+},{}]},{},["../lib/engine.js"]);
 
 //# sourceMappingURL=pockets.bundle.js.map
