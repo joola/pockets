@@ -272,6 +272,9 @@ bitcoin.createWallet = function (options, callback) {
 bitcoin.balance = function (options, callback) {
   if (!options || (options && !options.wallet) || (options.wallet && !options.wallet.address))
     return callback(null, 0);
+
+  return callback(null, options.wallet.balance || 0);
+
   var balance = null;
   var uri = 'https://test-insight.bitpay.com/api/addr/';
   uri += options.wallet.address;
@@ -590,7 +593,6 @@ pockets.list = function (options, callback) {
         pockets._.wallet.balance = balance;
       return callback(null, pockets._);
     });
-
   });
 };
 
@@ -620,8 +622,13 @@ pockets.create = function (options, callback) {
       }
     });
     async.series(calls, function (err, results) {
-      pockets._ = options;
-      return pockets.save({}, callback);
+      engine.bitcoin.createWallet({}, function (err, result) {
+        if (err)
+          return callback(err);
+        pockets._.wallet = pockets._.wallet || result;
+        pockets._ = options;
+        return pockets.save({}, callback);
+      });
     });
   }
   else {
@@ -754,6 +761,7 @@ pockets.init = function (options, callback) {
     pockets._ = value;
   else
     pockets._ = {};
+
   return callback(null, pockets._);
 };
 

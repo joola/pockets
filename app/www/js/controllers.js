@@ -45,6 +45,7 @@ angular.module('starter.controllers', [])
               name: 'House',
               parent: 'savings',
               hard_ratio: 0.7,
+              savings: true,
               wallet: {
                 address: 'mrp4coJDchLcMqyo3KKV4HFPmY5UT2qKRT',
                 key: 'cRppGzhJzdEgM5vfNn9e72bKpLDWxTD8gXDKbpE3JLBKLiMzfNEQ',
