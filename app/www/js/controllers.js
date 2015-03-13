@@ -177,7 +177,7 @@ angular.module('starter.controllers', [])
         '</label>' +
         '<label class="item item-input">' +
         '<span class="input-label">To address</span>' +
-        '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
+          '<input ng-model="data.toAddress" type="text" placeholder="BTC Address">' +
         '</label>' +
         '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>' +
         '</div>',
@@ -384,7 +384,7 @@ angular.module('starter.controllers', [])
         '</label>' +
         '<label class="item item-input">' +
         '<span class="input-label">To address</span>' +
-        '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
+        '<input ng-model="data.toAddress" type="text" placeholder="BTC Address">' +
         '</label>' +
         '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>',
         title: 'Spend from parent wallet',
