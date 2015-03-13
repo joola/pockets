@@ -1,9 +1,9 @@
 <ion-view view-title="My pockets">
   <ion-content>
     <div class="pocket-content">
-      <div on-hold="pocketHold('{{value.name}}')" ng-repeat="(key, value) in pockets.pockets"
+      <div on-hold="pocketHold(value.name)" ng-repeat="(key, value) in pockets.pockets"
            style="background-color:{{value.color}};width:100%;height:{{value.hard_ratio*100}}%; position:relative;"
-           ng-click="selectPocket('{{value.name}}', '{{value.pockets}}')">
+           ng-click="selectPocket(value.name, value.pockets)">
         <div class="pocket-title" style="background-color:{{value.color}}">
           {{value.name}}
         </div>
