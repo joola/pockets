@@ -126,9 +126,51 @@ angular.module('starter.controllers', [])
         $state.go('tab.pocket-details', {pocketName: pocketName});
     };
 
-    $scope.editPocket = function(pocketName) {
-      console.log(pocketName);
-      engine.pockets.get({name: pocketName}).then(function(result) {
+    $scope.spend = function () {
+      $scope.data = {};
+      var myPopup = $ionicPopup.show({
+        template: '<div class="list">' +
+        '<label class="item item-input item-select">' +
+        '<span class="input-label">Spend from</span>' +
+        '<select ng-model="data.pocket">' +
+        '<option ng-repeat="(key, pocket) in pockets.pockets" value="{{pocket.name}}">{{pocket.name}}</option>' +
+        '</select>' +
+        '</label>' +
+        '<label class="item item-input">' +
+        '<span class="input-label">Amount</span>' +
+        '<input ng-model="data.amount" type="number" placeholder="0.01">' +
+        '</label>' +
+        '<label class="item item-input">' +
+        '<span class="input-label">To address</span>' +
+        '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
+        '</label>' +
+        '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>' +
+        '</div>',
+        title: 'Send money',
+        scope: $scope,
+        buttons: [
+          {text: 'Cancel'},
+          {
+            text: '<b>Send</b>',
+            type: 'button-positive',
+            onTap: function (e) {
+              if (!$scope.data) {
+                //don't allow the user to close unless he enters wifi password
+                e.preventDefault();
+              } else {
+                return $scope.result;
+              }
+            }
+          }
+        ]
+      });
+      myPopup.then(function (res) {
+        console.log($scope.data);
+      });
+    };
+
+    $scope.editPocket = function (pocketName) {
+      engine.pockets.get({name: pocketName}).then(function (result) {
         $scope.result = result;
         var myPopup = $ionicPopup.show({
           template: '<div class="list">' +
@@ -163,12 +205,12 @@ angular.module('starter.controllers', [])
           '<input ng-model="result.limit" type="number" placeholder="1">' +
           '</label>' +
           '</div>',
-          title: 'Add a new pocket',
+          title: 'Edit pocket',
           scope: $scope,
           buttons: [
             {text: 'Cancel'},
             {
-              text: '<b>Add</b>',
+              text: '<b>Save</b>',
               type: 'button-positive',
               onTap: function (e) {
                 if (!$scope.result) {
@@ -182,18 +224,14 @@ angular.module('starter.controllers', [])
           ]
         });
         myPopup.then(function (res) {
-          console.log(res);
-          /*
-          $scope.newpocket.hard_ratio = $scope.newpocket.hard_ratio / 100;
-          engine.pockets.create($scope.newpocket).then(function () {
-            //$state.go('')
+          engine.pockets.update(res).then(function () {
+
           }).error(function (err) {
-            if (err)
-              throw err;
+            if (err) throw err;
           });
-          */
+
         });
-      }).error(function(err) {
+      }).error(function (err) {
         if (err)
           throw err;
       });
@@ -286,22 +324,14 @@ angular.module('starter.controllers', [])
       });
     };
     $scope.rootInfo = function () {
-      var myPopup = $ionicPopup.show({
-        template: '<div>QR</div>',
-        title: 'Info',
-        scope: $scope,
-        buttons: [
-          {
-            text: '<b>OK</b>',
-            type: 'button-positive'
-          }
-        ]
-      });
-      myPopup.then(function (res) {
-
-      });
-    };
+      $state.go('tab.rootinfo');
+    }
   })
+
+  .controller('rootinfoCtrl', function ($scope) {
+    console.log('in root');
+  })
+
   .controller('pocketDetailsCtrl', function ($scope, $state, $ionicPopup, $stateParams, $cordovaBarcodeScanner) {
     engine.pockets.get({name: $stateParams.pocketName}).then(function (result) {
       $scope.pockets = result;
@@ -326,7 +356,7 @@ angular.module('starter.controllers', [])
         '<input ng-model="data.toAddress" type="text" placeholder="0.01">' +
         '</label>' +
         '<br><div style="text-align:center"><button class="btn btn-primary" ng-click="scanQR()">Scan</button></div>',
-        title: 'Info',
+        title: 'Spend from ' + $scope.pockets.name,
         scope: $scope,
         buttons: [
           {text: 'Cancel'},
@@ -337,27 +367,29 @@ angular.module('starter.controllers', [])
         ]
       });
       myPopup.then(function (res) {
-        engine.bitcoin.sendMoney({
-          from: {
-            name: $scope.pockets.name,
-            wallet: {
-              address: $scope.pockets.wallet.address,
-              key: $scope.pockets.wallet.key
-            }
-          },
-          to: {
-            name: 'test',
-            wallet: {
-              address: $scope.data.toAddress
-            }
-          },
-          amount: $scope.data.amount
-        }).then(function (result) {
-          console.log(result);
-        }).error(function (err) {
-          console.log(err);
-        });
-        console.log($scope.pockets.name, $scope.data.toAddress, $scope.data.amount);
+        if (res) {
+          engine.bitcoin.sendMoney({
+            from: {
+              name: $scope.pockets.name,
+              wallet: {
+                address: $scope.pockets.wallet.address,
+                key: $scope.pockets.wallet.key
+              }
+            },
+            to: {
+              name: 'test',
+              wallet: {
+                address: $scope.data.toAddress
+              }
+            },
+            amount: $scope.data.amount
+          }).then(function (result) {
+            console.log(result);
+          }).error(function (err) {
+            console.log(err);
+          });
+          console.log($scope.pockets.name, $scope.data.toAddress, $scope.data.amount);
+        }
       });
     };
   })
